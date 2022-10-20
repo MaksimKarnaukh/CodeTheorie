@@ -5,8 +5,9 @@
 #ifndef CODETHEORIE_ENIGMA_H
 #define CODETHEORIE_ENIGMA_H
 
+#include "AlgorithmDecription.h"
 
-class Enigma {
+class Enigma : public AlgorithmDecription {
 
 };
 

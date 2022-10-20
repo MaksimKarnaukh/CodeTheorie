@@ -5,9 +5,13 @@
 #ifndef CODETHEORIE_VIGINEREPLUS_H
 #define CODETHEORIE_VIGINEREPLUS_H
 
+#include "AlgorithmDecription.h"
 
-class ViginerePlus {
+class ViginerePlus : public AlgorithmDecription {
 
+public:
+
+    ViginerePlus(const std::string& filename);
 };
 
 
