@@ -5,9 +5,9 @@
 #ifndef CODETHEORIE_VIGINEREPLUS_H
 #define CODETHEORIE_VIGINEREPLUS_H
 
-#include "AlgorithmDecription.h"
+#include "AlgorithmDecryption.h"
 
-class ViginerePlus : public AlgorithmDecription {
+class ViginerePlus : public AlgorithmDecryption {
 
 public:
 

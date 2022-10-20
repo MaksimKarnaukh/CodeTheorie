@@ -4,6 +4,6 @@
 
 #include "ViginerePlus.h"
 
-ViginerePlus::ViginerePlus(const std::string &filename) : AlgorithmDecription(filename) {
+ViginerePlus::ViginerePlus(const std::string &filename) : AlgorithmDecryption(filename) {
 
 }

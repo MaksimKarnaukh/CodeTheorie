@@ -5,9 +5,9 @@
 #ifndef CODETHEORIE_ADFGVX_H
 #define CODETHEORIE_ADFGVX_H
 
-#include "AlgorithmDecription.h"
+#include "AlgorithmDecryption.h"
 
-class Adfgvx : public AlgorithmDecription {
+class Adfgvx : public AlgorithmDecryption {
 
 };
 

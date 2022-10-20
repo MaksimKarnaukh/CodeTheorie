@@ -5,9 +5,9 @@
 #ifndef CODETHEORIE_PLAYFAIR_H
 #define CODETHEORIE_PLAYFAIR_H
 
-#include "AlgorithmDecription.h"
+#include "AlgorithmDecryption.h"
 
-class Playfair : public AlgorithmDecription {
+class Playfair : public AlgorithmDecryption {
 
 };
 

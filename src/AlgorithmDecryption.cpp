@@ -2,11 +2,11 @@
 // Created by Maksim Karnaukh on 20/10/2022.
 //
 
-#include "AlgorithmDecription.h"
+#include "AlgorithmDecryption.h"
 
-AlgorithmDecription::AlgorithmDecription() = default;
+AlgorithmDecryption::AlgorithmDecryption() = default;
 
-AlgorithmDecription::AlgorithmDecription(const std::string &filename) {
+AlgorithmDecryption::AlgorithmDecryption(const std::string &filename) {
     ifstream input(filename);
     if (!input.is_open()) {
         cerr << "Error while reading file contents" << endl;
