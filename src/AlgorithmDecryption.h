@@ -8,7 +8,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
+#include <map>
+#include <vector>
+#include <set>
+#include <streambuf>
 using namespace std;
 
 /**
@@ -16,14 +19,23 @@ using namespace std;
  */
 class AlgorithmDecryption {
 
-    string cipherText; // to store the ciphertext from the file in
+    // to store the ciphertext from the file in
+    string cipherText;
 
 public:
 
     AlgorithmDecryption();
 
-    AlgorithmDecryption(const std::string& filename);
+    const string &getCipherText() const;
 
+    AlgorithmDecryption(const std::string& filename);
+    virtual ~AlgorithmDecryption() = default;
+    void vectorWithRange(std::vector<int> &v, int start, int end);
+    virtual std::string Solve() = 0;
+
+    static std::map<int, std::set<std::string>> subStringFrequention(const string &text, int max_length);
+
+    static void printMap(map<int, set<std::string>> m);
 };
 
 
