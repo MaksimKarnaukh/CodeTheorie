@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <complex>
 #include "AlgorithmDecryption.h"
 
 AlgorithmDecryption::AlgorithmDecryption() = default;
@@ -63,4 +64,22 @@ void AlgorithmDecryption::vectorWithRange(std::vector<int> &v, int start, int en
     for (int i = start; i < end; i++) {
         v.emplace_back(i);
     }
+}
+
+float AlgorithmDecryption::compareLanguageFrequencies(const vector<float> &toCompare) {
+    float bestVal = std::numeric_limits<float>::max();
+    for (const auto& [language,frequency] : LETTER_FREQUENCIES){
+        bestVal = std::min(bestVal, compareFrequencies(frequency,toCompare));
+    }
+    return bestVal;
+}
+
+float AlgorithmDecryption::compareFrequencies(const vector<float> &left, const vector<float> &right) {
+    float two_norm {};
+    float diff {};
+    for (int index = 0 ; index < left.size() && index<right.size(); index++){
+        diff = left[index] - right[index];
+        two_norm += diff*diff;
+    }
+    return std::sqrt(two_norm);
 }
