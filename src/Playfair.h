@@ -24,6 +24,7 @@ public:
 
     string decipher(string key, string ciphertext);
 
+
 };
 
 

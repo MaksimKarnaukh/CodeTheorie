@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
         algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
     }
     else if ( encr_algo == "PF"){ // specific encryption algorithm
+
         algorithmDecryption = std::make_shared<Playfair>(Playfair("../data/02-OPGAVE-playfair.txt"));
     }
     std::cout << algorithmDecryption->Solve() << std::endl;
