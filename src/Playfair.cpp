@@ -87,6 +87,7 @@ std::string Playfair::Solve() {
             }
         }
     }
+
     return alfabet_string;
 
 }
