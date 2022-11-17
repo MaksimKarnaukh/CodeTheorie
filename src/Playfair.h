@@ -9,6 +9,21 @@
 
 class Playfair : public AlgorithmDecryption {
 
+public:
+    Playfair(const std::string& filename);
+
+    std::string Solve() override;
+
+    bool hasBetterFitness(const map<int, set<basic_string<char>>>& freq1, const map<int, set<basic_string<char>>>& freq2) const;
+
+    int getFitness(const map<int, set<basic_string<char>>>& freq1) const;
+
+    int mod(int a, int b);
+
+    string modifyKey(string key);
+
+    string decipher(string key, string ciphertext);
+
 };
 
 
