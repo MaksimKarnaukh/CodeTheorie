@@ -19,4 +19,6 @@ AlgorithmDecryption::AlgorithmDecryption(const std::string &filename) {
     std::cout << this->cipherText << std::endl;
 }
 
-
+const string &AlgorithmDecryption::getCipherText() const {
+    return cipherText;
+}

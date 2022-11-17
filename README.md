@@ -11,4 +11,3 @@ Playfair \
 VigenerePlus
 
 Run file: main.cpp
-

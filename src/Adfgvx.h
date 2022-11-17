@@ -6,9 +6,14 @@
 #define CODETHEORIE_ADFGVX_H
 
 #include "AlgorithmDecryption.h"
+#include <map>
+#include <vector>
 
 class Adfgvx : public AlgorithmDecryption {
-
+    static string decodeMorse(const std::string& text);
+public:
+    Adfgvx(const string& filename);
+    string decrypt();
 };
 
 

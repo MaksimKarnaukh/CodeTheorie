@@ -15,10 +15,11 @@ using namespace std;
  * AlgorithmDecryption: Base class for all the decryption classes
  */
 class AlgorithmDecryption {
-
     string cipherText; // to store the ciphertext from the file in
 
 public:
+
+    const string &getCipherText() const;
 
     AlgorithmDecryption();
 
