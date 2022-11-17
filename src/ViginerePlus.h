@@ -9,10 +9,36 @@
 
 class ViginerePlus : public AlgorithmDecryption {
 
-public:
 
+public:
     ViginerePlus(const std::string& filename);
+    std::string Solve() override;
+
 };
+
+class SingleColumnTransposition : AlgorithmDecryption {
+    std::string result, ciphertext;
+    std::vector<int> order;
+    map<int, set<std::string>> m;
+    int id;
+public:
+    SingleColumnTransposition(const std::vector<int>& order,const std::string& ciphertext);
+    bool operator> (const SingleColumnTransposition& other) const;
+    bool operator== (const SingleColumnTransposition& other ) const;
+    SingleColumnTransposition();
+    friend ostream& operator<<(ostream& os, const SingleColumnTransposition& singleColumnTransposition);
+
+    void fillEmpties(string &basicString);
+    int getKeyLength();
+    int getCharPerCol(int stringlength);
+
+    void constructResult(std::string ciphertext);
+
+    virtual ~SingleColumnTransposition();
+    std::string Solve() override;
+    void removeEmpties(string &basicString);
+};
+
 
 
 #endif //CODETHEORIE_VIGINEREPLUS_H

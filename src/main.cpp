@@ -5,6 +5,7 @@
 #include "Playfair.h"
 #include "ViginerePlus.h"
 #include <chrono>
+#include <memory>
 
 using namespace std;
 using namespace std::chrono;
@@ -19,16 +20,21 @@ int main(int argc, char *argv[]) {
         encr_algo = argv[1];
     }
     auto start = high_resolution_clock::now();
+    std::shared_ptr<AlgorithmDecryption> algorithmDecryption;
 
     if (encr_algo.empty()) { // all encryption algorithms
-        ViginerePlus viginerePlus = ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt");
+//        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
     }
-    else { // specific encryption algorithm
+    else if ( encr_algo == "VP"){ // specific encryption algorithm
+        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
+    }
+    else if ( encr_algo == "PF"){ // specific encryption algorithm
 
+        algorithmDecryption = std::make_shared<Playfair>(Playfair("../data/02-OPGAVE-playfair.txt"));
     }
+    std::cout << algorithmDecryption->Solve() << std::endl;
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     cout << "Time taken by main: " << duration.count() << " microseconds" << endl;
-
     return 0;
 }
