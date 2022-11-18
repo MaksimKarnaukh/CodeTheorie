@@ -1,9 +1,12 @@
+//
+// Created by kinfp on 18/11/22.
+//
 #include <iostream>
 #include <string>
 #include "Adfgvx.h"
-#include "Enigma.h"
-#include "Playfair.h"
-#include "ViginerePlus.h"
+//#include "Enigma.h"
+//#include "Playfair.h"
+//#include "ViginerePlus.h"
 #include <chrono>
 #include <memory>
 
@@ -25,16 +28,14 @@ int main(int argc, char *argv[]) {
     if (encr_algo.empty()) { // all encryption algorithms
 //        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
     }
-    else if ( encr_algo == "VP"){ // specific encryption algorithm
-        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
-    }
-    else if ( encr_algo == "PF"){ // specific encryption algorithm
-
-        algorithmDecryption = std::make_shared<Playfair>(Playfair("../data/02-OPGAVE-playfair.txt"));
-    }
-    else if (encr_algo == "AD") {
-        algorithmDecryption = std::make_shared<Adfgvx>(Adfgvx("../data/03-OPGAVE-adfgvx.txt"));
-    }
+//    else if ( encr_algo == "VP"){ // specific encryption algorithm
+//        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
+//    }
+//    else if ( encr_algo == "PF"){ // specific encryption algorithm
+//
+//        algorithmDecryption = std::make_shared<Playfair>(Playfair("../data/02-OPGAVE-playfair.txt"));
+//    }
+    algorithmDecryption = std::make_shared<Adfgvx>(Adfgvx("../data/03-OPGAVE-adfgvx.txt"));
     std::cout << algorithmDecryption->Solve() << std::endl;
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
