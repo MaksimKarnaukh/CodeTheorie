@@ -12,6 +12,27 @@ class Playfair : public AlgorithmDecryption {
 public:
     Playfair(const std::string& filename);
 
+    /**
+     * main function
+
+     * Simulated Annealing Algorithm :
+
+        1. Generate a random key, called the 'parent', decipher the ciphertext
+        using this key.
+        2. Rate the fitness of the deciphered text, store the result.
+        3. for(TEMP = 10;TEMP >= 0; TEMP = TEMP - STEP)
+                for (count = 50,000; count>0; count--)
+                    Change the parent key slightly (e.g. swap two characters in the
+                        key at random) to get child key,
+                    Measure the fitness of the deciphered text using the child key
+                    set dF = (fitness of child - fitness of parent)
+                    If dF > 0 (fitness of child is higher than parent key),
+                        set parent = child
+                    If dF < 0 (fitness of child is worse than parent),
+                        set parent = child with probability e^(dF/T).
+
+     * @return
+     */
     std::string Solve() override;
 
     bool hasBetterFitness(const map<int, set<basic_string<char>>>& freq1, const map<int, set<basic_string<char>>>& freq2) const;
@@ -20,9 +41,29 @@ public:
 
     int mod(int a, int b);
 
-    string modifyKey(string key);
+    /**
+     *  Changes the key with the following actions and corresponding frequencies:
 
-    string decipher(string key, string ciphertext);
+        Swap single letters (90%)
+        Swap random rows (2%)
+        Swap columns (2%)
+        Flip all rows (2%)
+        Flip all columns (2%)
+        Reverse the whole key (2%)
+
+     * @param key
+     * @return
+     */
+    string modifyKey(const string& key);
+
+    /**
+     * Decrypts the ciphertext with the given key according to the playfair algorithm.
+     * @param key : string consisting of 25 different letters.
+     * @param ciphertext : ciphertext
+     * @return : plaintext (decrypted text)
+     */
+    string decipher(const string& key, const string& ciphertext);
+
 
 
 };
