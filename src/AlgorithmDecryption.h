@@ -82,6 +82,10 @@ public:
     static float compareFrequencies(const vector<float> &left, const vector<float> &right);
     static float compareLanguageFrequencies(const vector<float> &toCompare);
 
+    static void normalize(vector<float> &vector1);
+
+    static std::vector<float> getAlphabetFrequencies(std::string string1);
+
 };
 
 

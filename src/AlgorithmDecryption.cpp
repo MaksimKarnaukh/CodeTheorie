@@ -83,3 +83,26 @@ float AlgorithmDecryption::compareFrequencies(const vector<float> &left, const v
     }
     return std::sqrt(two_norm);
 }
+
+void AlgorithmDecryption::normalize(vector<float> &vector1) {
+    float divider {};
+
+    for (const float& frequency : vector1){
+        divider += frequency*frequency;
+    }
+    divider = std::sqrt(divider);
+    for (float& elem : vector1){
+        elem = elem/divider;
+    }
+
+}
+
+std::vector<float> AlgorithmDecryption::getAlphabetFrequencies(std::string string1) {
+    std::vector<float> frequencies (26,0.0f);
+    int a ('A');
+    for (const int& c : string1){
+        frequencies[c-a]+=1.0f;
+    }
+    normalize(frequencies);
+    return frequencies;
+}
