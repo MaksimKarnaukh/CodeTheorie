@@ -6,14 +6,31 @@
 #define CODETHEORIE_ADFGVX_H
 
 #include "AlgorithmDecryption.h"
-#include <map>
-#include <vector>
+#include <algorithm>
+#include <cmath>
+
+
+// morse code all characters
+/*
+const std::map<std::string, float> MORSE = {{".-", 'a'}, {"-...", 'b'}, {"-.-.", 'c'}, {"-..", 'd'}, {".", 'e'}, {"..-.", 'f'}, {"--.", 'g'}, {"....", 'h'},
+                                            {"..", 'i'}, {".---", 'j'}, {"-.-", 'k'}, {".-..", 'l'}, {"--", 'm'}, {"-.", 'n'}, {"---", 'o'}, {".--.", 'p'},
+                                            {"--.-", 'q'}, {".-.", 'r'}, {"...", 's'}, {"-", 't'}, {"..-", 'u'}, {"...-", 'v'}, {".--", 'w'}, {"-..-", 'x'},
+                                            {"-.--", 'y'}, {"--..", 'z'}, {"-----", '0'}, {".----", '1'}, {"..---", '2'}, {"...--", '3'}, {"....-", '4'},
+                                            {".....", '5'}, {"-....", '6'}, {"--...", '7'}, {"---..", '8'}, {"----.", '9'}};
+*/
+// morse code essential characters
+const std::map<std::string, char> MORSE = {{".-", 'a'}, {"-..", 'd'}, {"..-.", 'f'}, {"--.", 'g'}, {"...-", 'v'}, {"-..-", 'x'}};
+
 
 class Adfgvx : public AlgorithmDecryption {
-    static string decodeMorse(const std::string& text);
+
+    static std::string breadthFirstRead(const std::vector<std::pair<std::string, int>>& columns, int size);
+
 public:
-    Adfgvx(const string& filename);
+    explicit Adfgvx(const string& filename);
     string decrypt();
+    std::string Solve() override;
+    static string decodeMorse(const std::string& text);
 };
 
 
