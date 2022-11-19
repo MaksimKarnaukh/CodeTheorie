@@ -4,6 +4,7 @@
 
 #include "Playfair.h"
 #include <cmath>
+#include <iomanip>
 
 Playfair::Playfair(const string &filename) : AlgorithmDecryption(filename) {
 
@@ -11,7 +12,8 @@ Playfair::Playfair(const string &filename) : AlgorithmDecryption(filename) {
 
 std::string Playfair::Solve() {
 
-
+    std::random_device rd;
+    random_engine = mt19937(rd()); // seeding the generator
 //    vector<string> parent_key; // representation of 5x5 matrix. Each entry is a row consisting of 5 chars.
     string key = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
 //    for (auto i = 0; i < alfabet_string.size(); i+=5) {
@@ -24,13 +26,19 @@ std::string Playfair::Solve() {
     std::vector<float> freq = getAlphabetFrequencies(plaintext);
     float best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN);
 
-    for (float TEMP = 2000; TEMP >= 0; TEMP = TEMP - 0.1f) {
-        for (int count = 50000; count > 0; count--) {
+    for (float TEMP = 1000; TEMP >= 0; TEMP = TEMP - 0.1f) { // 2000
+        for (int count = 10000; count > 0; count--) { // 50000
             string temp_key = modifyKey(key);
             string temp_plaintext = decipher(temp_key, ciphertext);
-            std::vector<float> temp_freq = getAlphabetFrequencies(plaintext);
+            std::vector<float> temp_freq = getAlphabetFrequencies(temp_plaintext);
             float temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
             float dF = (-temp_fitness) - (-best_fitness);
+            if (count % 1000 == 0) {
+                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
+                cout << "temp_key : " << temp_key << endl;
+                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+                cout << "dF : " << std::setprecision(10) << dF << endl;
+            }
             if (dF >= 0) {
                 key = temp_key;
                 best_fitness = temp_fitness;
@@ -74,25 +82,28 @@ int Playfair::getFitness(const map<int, set<basic_string<char>>>& freq) const {
 
 string Playfair::modifyKey(const string& key) {
 
-    string temp_key;
-    int r = ((double) rand() / (RAND_MAX))*100;
-    if (r >= 98) { // Swap random rows (2%)
+    string temp_key = key;
 
+    uniform_int_distribution<int> uint_dist(0, 100);
+    int r = uint_dist(random_engine); // r is an integer between 0 and 100.
+
+    if (r < 90) { // Swap single letters (90%)
+        temp_key = swapTwoLetters(temp_key);
     }
-    else if (r >= 96) { // Swap columns (2%)
-
+    else if (r < 92) { // Reverse the whole key (2%)
+        reverse(temp_key.begin(), temp_key.end());
     }
-    else if (r >= 94) { // Flip all rows (2%)
-
+    else if (r < 94) { // Flip all rows (2%)
+        temp_key = flipAllRows(temp_key);
     }
-    else if (r >= 92) { // Flip all columns (2%)
-
+    else if (r < 96) { // Flip all columns (2%)
+        temp_key = flipAllColumns(temp_key);
     }
-    else if (r >= 90) { // Reverse the whole key (2%)
-
+    else if (r < 98) { // Swap columns (2%)
+        temp_key = swapTwoColumns(temp_key);
     }
-    else { // Swap single letters (90%)
-
+    else { // Swap random rows (2%)
+        temp_key = swapTwoRows(temp_key);
     }
     return temp_key;
 
@@ -129,4 +140,62 @@ string Playfair::decipher(const string& key, const string& ciphertext) {
         plaintext.push_back(second_letter);
     }
     return plaintext;
+}
+
+string Playfair::swapTwoLetters(const string &key) {
+    string temp_key = key;
+    uniform_int_distribution<int> temp_uint_dist(0, 24);
+    int first_index = temp_uint_dist(random_engine);
+    int second_index = temp_uint_dist(random_engine);
+
+    swap(temp_key[first_index], temp_key[second_index]);
+    return temp_key;
+}
+
+string Playfair::swapTwoRows(const string &key) {
+    string temp_key = key;
+    uniform_int_distribution<int> temp_uint_dist(0, 4);
+    int first_index = temp_uint_dist(random_engine);
+    int second_index = temp_uint_dist(random_engine);
+
+    for (int col_index = 0; col_index < 5; col_index++) {
+        char temp_char = temp_key[first_index*5+col_index];
+        temp_key[first_index*5+col_index] = temp_key[second_index*5+col_index];
+        temp_key[second_index*5+col_index] = temp_char;
+    }
+    return temp_key;
+}
+
+string Playfair::swapTwoColumns(const string &key) {
+    string temp_key = key;
+    uniform_int_distribution<int> temp_uint_dist(0, 4);
+    int first_index = temp_uint_dist(random_engine);
+    int second_index = temp_uint_dist(random_engine);
+
+    for (int row_index = 0; row_index < 5; row_index++) {
+        char temp_char = temp_key[row_index*5+first_index];
+        temp_key[row_index*5+first_index] = temp_key[row_index*5+second_index];
+        temp_key[row_index*5+second_index] = temp_char;
+    }
+    return temp_key;
+}
+
+string Playfair::flipAllRows(const string &key) {
+    string temp_key = key;
+    for (int row_index = 0; row_index < 2; row_index++) {
+        for (int col_index = 0; col_index < 5; col_index++) {
+            swap(temp_key[(5*row_index)+col_index], temp_key[(5*(4-row_index))+col_index]);
+        }
+    }
+    return temp_key;
+}
+
+string Playfair::flipAllColumns(const string &key) {
+    string temp_key = key;
+    for (int col_index = 0; col_index < 2; col_index++) {
+        for (int row_index = 0; row_index < 5; row_index++) {
+            swap(temp_key[(5*row_index)+col_index], temp_key[(5*(row_index))+(4-col_index)]);
+        }
+    }
+    return temp_key;
 }

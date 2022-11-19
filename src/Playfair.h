@@ -10,6 +10,9 @@
 class Playfair : public AlgorithmDecryption {
 
 public:
+
+    mt19937 random_engine;
+
     Playfair(const std::string& filename);
 
     /**
@@ -55,6 +58,16 @@ public:
      * @return
      */
     string modifyKey(const string& key);
+
+    /**
+     * See Playfair::modifyKey(string) function description.
+     */
+    string swapTwoLetters(const string& key);
+    string swapTwoRows(const string& key);
+    string swapTwoColumns(const string& key);
+    string flipAllRows(const string& key);
+    string flipAllColumns(const string& key);
+
 
     /**
      * Decrypts the ciphertext with the given key according to the playfair algorithm.

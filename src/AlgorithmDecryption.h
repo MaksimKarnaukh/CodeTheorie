@@ -13,6 +13,8 @@
 #include <set>
 #include <streambuf>
 #include <limits>
+#include <random>
+#include <algorithm>
 
 using namespace std;
 
