@@ -9,9 +9,35 @@ Adfgvx::Adfgvx(const std::string &filename) : AlgorithmDecryption(filename) {
 
 }
 
+//void printmap(const std::map<std::string, int> &map) {
+//    std::cout << map.size() << std::endl;
+//    for (const auto& pair : map) {
+//        std::cout << pair.first << ": " << pair.second << std::endl;
+//    }
+//}
+
 std::string Adfgvx::Solve() {
     auto text = decodeMorse(getCipherText());
     std::cout << text << std::endl;
+
+    // sorted language letter frequencies with letter
+    std::map<std::string, std::vector<std::pair<float, char>>> languageLetterFrequencies;
+    for (const auto &language : LETTER_FREQUENCIES) {
+        std::vector<std::pair<float, char>> v;
+        for (int i = 0; i < 26; i++) {
+            v.emplace_back(language.second[i], 'a' + i);
+        }
+        languageLetterFrequencies[language.first] = v;
+    }
+    auto sortGreater = [](const auto &x1, const auto &x2){
+        return x1.first > x2.first;
+    };
+    for (auto& language : languageLetterFrequencies) {
+        std::sort(language.second.begin(), language.second.end(), sortGreater);
+    }
+
+    // shows potential
+    std::vector<std::vector<std::string>> potential;
 
     // Try all permutations
     unsigned short int keyLength = 1;
@@ -22,7 +48,7 @@ std::string Adfgvx::Solve() {
         columns.reserve(keyLength);
 
         // column index list
-        vector<unsigned short int> columnIndices;
+        std::vector<unsigned short int> columnIndices;
         columnIndices.reserve(keyLength);
         for (int columnIndex = 0; columnIndex < keyLength; columnIndex++) {
             columnIndices.push_back(columnIndex);
@@ -34,11 +60,11 @@ std::string Adfgvx::Solve() {
         // try permutations
         do {
             // testing
-            std::cout << "\nTrying ";
-            for (auto i : columnIndices) {
-                std::cout << i << ' ';
-            }
-            std::cout << std::endl;
+//            std::cout << "\nTrying ";
+//            for (auto i : columnIndices) {
+//                std::cout << i << ' ';
+//            }
+//            std::cout << std::endl;
 
             // make columns
             columns.clear();
@@ -56,11 +82,77 @@ std::string Adfgvx::Solve() {
 
             // get string by reading each column breadth first
             auto newText = breadthFirstRead(columns, columnSize);
-            std::cout << newText << "\n";
+
+            // length 2 substrings and frequency
+            auto substrings = splitInSubstrings(newText);
+            auto frequency = twoLetterFrequency(substrings);
+
+            // given this context, a length of 36 is unlikely
+            if (frequency.size() > 35) {
+                continue;
+            }
+
+            // compare to letter frequency in language
+            std::vector<std::pair<float, std::string>> letterFrequencies;
+            letterFrequencies.reserve(35);  // cannot be more than 35
+            for (const auto &substring : frequency) {
+                letterFrequencies.emplace_back(float(substring.second), substring.first);
+            }
+            std::sort(letterFrequencies.begin(), letterFrequencies.end(), sortGreater);
+//            normalize(letterFrequencies);
+//            int something = 0;
+//            for (const auto& val : letterFrequencies) {
+//                something += val;
+//            }
+//            std::cout << something << std::endl;
+//            std::cout << text.size() << ", " << newText.size() << std::endl;
+            string language;
+            for (const auto &languageLetters : languageLetterFrequencies) {
+                bool similarValues = true;
+                for (int i = 0; i < 5; i++) {
+                    if (abs((letterFrequencies[i].first / float(text.size()) * 200) - languageLetters.second[i].first) > 1) {
+                        similarValues = false;
+                        break;
+                    }
+                }
+                if (similarValues) {
+                    language = languageLetters.first;
+                }
+            }
+            if (language.size() < 2) {
+                continue;
+            }
+//            std::cout << "\nTrying ";
+//            for (auto i : columnIndices) {
+//                std::cout << i << ' ';
+//            }
+//            std::cout << std::endl;
+//            std::cout << newText << "\n";
+//            std::cout << language << "\n";
+
+            // some form of output
+            potential.push_back(substrings);
+            int max = 5;
+            for (auto& substring: substrings) {
+                std::string out;
+                for (int i = 0; i < max; i++) {
+                    if (substring == letterFrequencies[i].second) {
+                        out = languageLetterFrequencies[language][i].second;
+                        break;
+                    }
+                    else if (i == max - 1) {
+                        out = '-';
+                        break;
+                    }
+                }
+                std::cout << out;
+            }
+            std::cout << "\n";
+
         } while (std::next_permutation(columnIndices.begin(), columnIndices.end()));
 
         keyLength++;
-        if (keyLength > 5)
+        if (keyLength > 6)
             break;
     }
 
@@ -121,4 +213,30 @@ std::string Adfgvx::breadthFirstRead(const vector<std::pair<std::string, int>> &
         }
     }
     return output;
+}
+
+/**
+ * Counts the frequency of the substrings
+ * @param substrings vector of substrings
+ * @return Frequency map
+ */
+std::map<std::string, int> Adfgvx::twoLetterFrequency(const vector<std::string> &substrings) {
+    std::map<std::string, int> frequency;
+    for (const auto& substring : substrings) {
+        frequency[substring] += 1;
+    }
+    return frequency;
+}
+
+/**
+ * Split string into substrings with length of 2
+ * @param text string to split
+ * @return vector of substrings
+ */
+std::vector<std::string> Adfgvx::splitInSubstrings(const string &text) {
+    std::vector<std::string> substrings;
+    for (int i = 0; i < int(text.size()); i += 2) {
+        substrings.push_back(text.substr(i, 2));
+    }
+    return substrings;
 }

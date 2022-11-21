@@ -24,13 +24,14 @@ const std::map<std::string, char> MORSE = {{".-", 'a'}, {"-..", 'd'}, {"..-.", '
 
 class Adfgvx : public AlgorithmDecryption {
 
-    static std::string breadthFirstRead(const std::vector<std::pair<std::string, int>>& columns, int size);
+    static std::string breadthFirstRead(const std::vector<std::pair<std::string, int>> &columns, int size);
+    static std::map<std::string, int> twoLetterFrequency(const vector<std::string> &substrings);
+    static std::vector<std::string> splitInSubstrings(const std::string &text);
 
 public:
-    explicit Adfgvx(const string& filename);
-    string decrypt();
+    explicit Adfgvx(const string &filename);
     std::string Solve() override;
-    static string decodeMorse(const std::string& text);
+    static std::string decodeMorse(const std::string &text);
 };
 
 
