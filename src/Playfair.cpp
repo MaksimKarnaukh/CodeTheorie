@@ -80,6 +80,14 @@ int Playfair::getFitness(const map<int, set<basic_string<char>>>& freq) const {
     return freq.rbegin()->first;
 }
 
+string Playfair::modifyKey(string key) {
+    return std::string();
+}
+
+string Playfair::decipher(string key, string ciphertext) {
+    return std::string();
+}
+
 string Playfair::modifyKey(const string& key) {
 
     string temp_key = key;
