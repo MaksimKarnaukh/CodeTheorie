@@ -97,11 +97,10 @@ std::string Adfgvx::Solve() {
             std::sort(letterFrequencies.begin(), letterFrequencies.end(), sortGreater);
 
             // remove "numbers" from frequency
-            string language;
-            int textSize = (int)text.size();
-            for (int i = 26; i < (int) letterFrequencies.size(); i++) {
-                textSize -= letterFrequencies[i].first;
-            }
+//            int textSize = (int)text.size();
+//            for (int i = 26; i < (int) letterFrequencies.size(); i++) {
+//                textSize -= letterFrequencies[i].first;
+//            }
 
             // normalize ???
             double divider = 0;
@@ -111,10 +110,11 @@ std::string Adfgvx::Solve() {
             divider = std::sqrt(divider);
 
             // compare to language letter frequency
+            std::string language;
             for (const auto &languageLetters : languageLetterFrequencies) {
                 bool similarValues = true;
                 for (int i = 0; i < 5; i++) {
-                    if (abs((double(letterFrequencies[i].first)) / divider - languageLetters.second[i].first) > 0.05) {
+                    if (std::abs((double(letterFrequencies[i].first) / divider) - languageLetters.second[i].first) > 0.05) {
                         similarValues = false;
                         break;
                     }
@@ -200,7 +200,7 @@ std::string Adfgvx::decodeMorse(const std::string& text) {
  * @param size The minimum size of a column
  * @return The output as string
  */
-std::string Adfgvx::breadthFirstRead(const vector<std::pair<std::string, int>> &columns, int size) {
+std::string Adfgvx::breadthFirstRead(const std::vector<std::pair<std::string, int>> &columns, int size) {
     if (columns.empty()) {
         return "";
     }
@@ -212,7 +212,7 @@ std::string Adfgvx::breadthFirstRead(const vector<std::pair<std::string, int>> &
 
     // breadth first
     int i = 0;
-    string output;
+    std::string output;
     while (i < size) {
         for (const auto& column : columns) {
             output.push_back(column.first.at(i));
@@ -234,7 +234,7 @@ std::string Adfgvx::breadthFirstRead(const vector<std::pair<std::string, int>> &
  * @param substrings vector of substrings
  * @return Frequency map
  */
-std::map<std::string, int> Adfgvx::twoLetterFrequency(const vector<std::string> &substrings) {
+std::map<std::string, int> Adfgvx::twoLetterFrequency(const std::vector<std::string> &substrings) {
     std::map<std::string, int> frequency;
     for (const auto& substring : substrings) {
         frequency[substring] += 1;
@@ -247,7 +247,7 @@ std::map<std::string, int> Adfgvx::twoLetterFrequency(const vector<std::string> 
  * @param text string to split
  * @return vector of substrings
  */
-std::vector<std::string> Adfgvx::splitInSubstrings(const string &text) {
+std::vector<std::string> Adfgvx::splitInSubstrings(const std::string &text) {
     std::vector<std::string> substrings;
     for (int i = 0; i < int(text.size()); i += 2) {
         substrings.push_back(text.substr(i, 2));
