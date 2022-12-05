@@ -6,7 +6,9 @@
 #define CODETHEORIE_PLAYFAIR_H
 
 #include "AlgorithmDecryption.h"
-
+#include <cmath>
+#include <iomanip>
+using namespace std;
 class Playfair : public AlgorithmDecryption {
 
 public:

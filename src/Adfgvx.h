@@ -4,11 +4,11 @@
 
 #ifndef CODETHEORIE_ADFGVX_H
 #define CODETHEORIE_ADFGVX_H
-
 #include "AlgorithmDecryption.h"
 #include <algorithm>
 #include <cmath>
 
+using namespace std;
 
 // morse code all characters
 /*

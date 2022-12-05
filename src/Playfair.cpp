@@ -3,8 +3,6 @@
 //
 
 #include "Playfair.h"
-#include <cmath>
-#include <iomanip>
 
 Playfair::Playfair(const string &filename) : AlgorithmDecryption(filename) {
 
@@ -23,16 +21,18 @@ std::string Playfair::Solve() {
     string ciphertext = this->getCipherText();
     string plaintext = decipher(key, ciphertext);
 
-    std::vector<float> freq = getAlphabetFrequencies(plaintext);
-    float best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN);
+    std::vector<double> freq;
+    getAlphabetFrequencies(plaintext,freq);
+    double best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN);
 
-    for (float TEMP = 1000; TEMP >= 0; TEMP = TEMP - 0.1f) { // 2000
+    for (double TEMP = 1000; TEMP >= 0; TEMP = TEMP - 0.1f) { // 2000
         for (int count = 10000; count > 0; count--) { // 50000
             string temp_key = modifyKey(key);
             string temp_plaintext = decipher(temp_key, ciphertext);
-            std::vector<float> temp_freq = getAlphabetFrequencies(temp_plaintext);
-            float temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
-            float dF = (-temp_fitness) - (-best_fitness);
+            std::vector<double> temp_freq;
+            getAlphabetFrequencies(temp_plaintext,freq);
+            double temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
+            double dF = (-temp_fitness) - (-best_fitness);
             if (count % 1000 == 0) {
                 cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
                 cout << "temp_key : " << temp_key << endl;
@@ -45,7 +45,7 @@ std::string Playfair::Solve() {
             }
             else {
                 if (TEMP > 0) {
-                    float prob = exp((float)(dF)/TEMP);
+                    double prob = exp((double)(dF)/TEMP);
                     if (prob > 1.0*rand()/RAND_MAX) {
                         best_fitness = temp_fitness;
                         key = temp_key;
@@ -79,6 +79,7 @@ int Playfair::getFitness(const map<int, set<basic_string<char>>>& freq) const {
 
     return freq.rbegin()->first;
 }
+
 
 string Playfair::modifyKey(const string& key) {
 
