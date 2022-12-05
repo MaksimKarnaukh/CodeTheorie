@@ -103,11 +103,18 @@ std::string Adfgvx::Solve() {
                 textSize -= letterFrequencies[i].first;
             }
 
+            // normalize ???
+            double divider = 0;
+            for (const auto& letterFrequency : letterFrequencies) {
+                divider += (letterFrequency.first * letterFrequency.first);
+            }
+            divider = std::sqrt(divider);
+
             // compare to language letter frequency
             for (const auto &languageLetters : languageLetterFrequencies) {
                 bool similarValues = true;
                 for (int i = 0; i < 5; i++) {
-                    if (abs((double(letterFrequencies[i].first) / double(textSize) * 200) - languageLetters.second[i].first) > 1.5) {
+                    if (abs((double(letterFrequencies[i].first)) / divider - languageLetters.second[i].first) > 0.05) {
                         similarValues = false;
                         break;
                     }
@@ -155,7 +162,7 @@ std::string Adfgvx::Solve() {
 
         } while (std::next_permutation(columnIndices.begin(), columnIndices.end()));
 
-        std::cout << potential.size() << std::endl;
+        std::cout << "\n" << potential.size() << std::endl;
 
         keyLength++;
         if (keyLength > 6)
