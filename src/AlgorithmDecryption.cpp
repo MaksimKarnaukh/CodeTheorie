@@ -7,9 +7,9 @@
 AlgorithmDecryption::AlgorithmDecryption() = default;
 
 AlgorithmDecryption::AlgorithmDecryption(const std::string &filename) {
-    ifstream f(filename); //taking file as inputstream
+    std::ifstream f(filename); //taking file as inputstream
     if (f) {
-        ostringstream ss;
+        std::ostringstream ss;
         ss << f.rdbuf(); // reading data
         this->cipherText = ss.str();
     }
@@ -18,7 +18,7 @@ AlgorithmDecryption::AlgorithmDecryption(const std::string &filename) {
 }
 
 std::map<int, std::set<std::string>>
-AlgorithmDecryption::subStringFrequention(const string &text, size_t max_length) {
+AlgorithmDecryption::subStringFrequention(const std::string &text, size_t max_length) {
 //    maps string on a frequention
     std::map<std::string, int> string_to_freq = {};
 //    maps frequency to vector of strings
@@ -43,12 +43,12 @@ AlgorithmDecryption::subStringFrequention(const string &text, size_t max_length)
     return freq_to_string;
 }
 
-const string &AlgorithmDecryption::getCipherText() const {
+const std::string &AlgorithmDecryption::getCipherText() const {
     return cipherText;
 }
 
 
-void AlgorithmDecryption::printMap(const map<int, set<std::string>>& m) {
+void AlgorithmDecryption::printMap(const std::map<int, std::set<std::string>>& m) {
     for (const auto &[key, elem]: m) {
         std::cout << key << std::endl;
         for (const auto &str: elem) {
@@ -64,7 +64,7 @@ void AlgorithmDecryption::vectorWithRange(std::vector<int> &v, int start, int en
     }
 }
 
-double AlgorithmDecryption::compareLanguageFrequencies(const vector<double> &toCompare) {
+double AlgorithmDecryption::compareLanguageFrequencies(const std::vector<double> &toCompare) {
     double bestVal = std::numeric_limits<double>::max();
     for (const auto &[language, frequency]: LETTER_FREQUENCIES) {
         bestVal = std::min(bestVal, compareFrequencies(frequency, toCompare));
@@ -72,7 +72,7 @@ double AlgorithmDecryption::compareLanguageFrequencies(const vector<double> &toC
     return bestVal;
 }
 
-double AlgorithmDecryption::compareFrequencies(const vector<double> &left, const vector<double> &right) {
+double AlgorithmDecryption::compareFrequencies(const std::vector<double> &left, const std::vector<double> &right) {
     double two_norm{};
     double diff;
     for (size_t index = 0, leftSize = left.size(), rightSize = right.size() ; index < leftSize && index < rightSize; index++) {
@@ -82,7 +82,7 @@ double AlgorithmDecryption::compareFrequencies(const vector<double> &left, const
     return std::sqrt(two_norm);
 }
 
-void AlgorithmDecryption::normalize(vector<double> &vector1) {
+void AlgorithmDecryption::normalize(std::vector<double> &vector1) {
     double divider{0};
 
     for (const double &frequency: vector1) {
@@ -95,7 +95,9 @@ void AlgorithmDecryption::normalize(vector<double> &vector1) {
 
 }
 
-void AlgorithmDecryption::getAlphabetFrequencies(const string &string1, vector<double> &frequencies) {
+void AlgorithmDecryption::getAlphabetFrequencies(const std::string &string1, std::vector<double> &frequencies) {
+    frequencies = std::vector<double>(26, 0.0);
+
     for (const char &c: string1) {
         frequencies[(int) c - ASCII_A] += 1.0f;
     }

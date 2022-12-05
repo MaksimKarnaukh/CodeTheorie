@@ -18,7 +18,6 @@
 #include <sstream>
 #include <complex>
 
-using namespace std;
 
 /* letter frequency sources
  * https://en.wikipedia.org/wiki/Letter_frequency
@@ -72,13 +71,13 @@ const int ASCII_A = {'A'};
  * AlgorithmDecryption: Base class for all the decryption classes
  */
 class AlgorithmDecryption {
-
+protected:
     // to store the ciphertext from the file in
-    string cipherText;
+    std::string cipherText;
 
 public:
 
-    const string &getCipherText() const;
+    const std::string &getCipherText() const;
 
     AlgorithmDecryption();
 
@@ -90,17 +89,17 @@ public:
 
     virtual std::string Solve() = 0;
 
-    static std::map<int, std::set<std::string>> subStringFrequention(const string &text, size_t max_length);
+    static std::map<int, std::set<std::string>> subStringFrequention(const std::string &text, size_t max_length);
 
-    static void printMap(const map<int, set<std::string>> &m);
+    static void printMap(const std::map<int, std::set<std::string>> &m);
 
-    static double compareFrequencies(const vector<double> &left, const vector<double> &right);
+    static double compareFrequencies(const std::vector<double> &left, const std::vector<double> &right);
 
-    static double compareLanguageFrequencies(const vector<double> &toCompare);
+    static double compareLanguageFrequencies(const std::vector<double> &toCompare);
 
-    static void normalize(vector<double> &vector1);
+    static void normalize(std::vector<double> &vector1);
 
-    static void getAlphabetFrequencies(const string &string1, vector<double> &frequencies);
+    static void getAlphabetFrequencies(const std::string &string1, std::vector<double> &frequencies);
 
 };
 

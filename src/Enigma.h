@@ -8,7 +8,14 @@
 #include "AlgorithmDecryption.h"
 
 class Enigma : public AlgorithmDecryption {
+std::array<std::string,5> rotoren;
+std::string crib;
+std::string reflector;
 
+public:
+    explicit Enigma(const std::string &filename);
+    static std::string decrypt(std::vector<std::string> rotors );
+    std::string Solve() override;
 };
 
 

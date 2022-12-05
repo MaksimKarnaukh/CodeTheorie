@@ -16,7 +16,7 @@
 class SingleColumnTransposition : AlgorithmDecryption {
     std::string result;
     std::vector<int> order;
-    map<int, set<std::string>> m;
+    std::map<int, std::set<std::string>> m;
     int id;
 public:
     SingleColumnTransposition(const std::vector<int> &order, const std::string &ciphertext);
@@ -27,9 +27,9 @@ public:
 
     SingleColumnTransposition();
 
-    friend ostream &operator<<(ostream &os, const SingleColumnTransposition &singleColumnTransposition);
+    friend std::ostream &operator<<(std::ostream &os, const SingleColumnTransposition &singleColumnTransposition);
 
-    void fillEmpties(string &basicString);
+    void fillEmpties(std::string &basicString);
 
     std::size_t getKeyLength();
 
@@ -41,9 +41,9 @@ public:
 
     std::string Solve() override;
 
-    static void removeEmpties(string &basicString);
+    static void removeEmpties(std::string &basicString);
 
-    [[nodiscard]] const string &getResult() const;
+    [[nodiscard]] const std::string &getResult() const;
 };
 
 class ViginerePlus : public AlgorithmDecryption {
@@ -52,12 +52,12 @@ public:
 
     std::string Solve() override;
 
-    set<SingleColumnTransposition, greater<>>
+    std::set<SingleColumnTransposition, std::greater<>>
     SolveColumnTranspostion(int min_keylength, int max_keylength, size_t nr_to_keep);
 
-    static void findBestKey(const string &basicString, std::string &return_key, double &return_fitness);
+    static void findBestKey(const std::string &basicString, std::string &return_key, double &return_fitness);
 
-    static std::string decrypt(const string &ciphertext, const string &key);
+    static std::string decrypt(const std::string &ciphertext, const std::string &key);
 };
 
 

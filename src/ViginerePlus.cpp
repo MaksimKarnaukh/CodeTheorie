@@ -15,7 +15,7 @@ ViginerePlus::ViginerePlus(const std::string &filename) : AlgorithmDecryption(fi
  */
 std::string ViginerePlus::Solve() {
 //    Get a vector with most likely solutions of the column transpostion
-    set<SingleColumnTransposition, greater<>> columnTranspositions = this->SolveColumnTranspostion(2, 10, 3);
+    std::set<SingleColumnTransposition, std::greater<>> columnTranspositions = this->SolveColumnTranspostion(2, 9, 3);
 
     std::string bestKey{}, tempKey{};
     double tempFittness{};
@@ -56,7 +56,7 @@ std::string ViginerePlus::Solve() {
  * @param nr_to_keep nr of column transpostion to keep and return
  * @return a set with the most prominent column transposition first
  */
-set<SingleColumnTransposition, greater<>>
+std::set<SingleColumnTransposition, std::greater<>>
 ViginerePlus::SolveColumnTranspostion(int min_keylength, int max_keylength, size_t nr_to_keep) {
     //    For timing and feedback purposes
     auto start = std::chrono::high_resolution_clock::now();
@@ -84,7 +84,7 @@ ViginerePlus::SolveColumnTranspostion(int min_keylength, int max_keylength, size
                 diff = std::chrono::duration_cast<std::chrono::seconds>(
                         std::chrono::high_resolution_clock::now() - start).count();
 //                Output counter, time and interations per second
-                std::cout << "\t|Counter: " << to_string(counter) << "\t |Time: "
+                std::cout << "\t|Counter: " << std::to_string(counter) << "\t |Time: "
                           << diff
                           << "\t|Iterations/Second: " << counter / diff << std::endl;
             }
@@ -98,7 +98,7 @@ ViginerePlus::SolveColumnTranspostion(int min_keylength, int max_keylength, size
             }
         }
 //        Output stats of the key with length keysize
-        std::cout << "Keylength: " << to_string(keysize) << " Counter: " << to_string(counter) << " Time: "
+        std::cout << "Keylength: " << std::to_string(keysize) << " Counter: " << std::to_string(counter) << " Time: "
                   << std::chrono::duration_cast<std::chrono::seconds>(
                           std::chrono::high_resolution_clock::now() - start).count() << std::endl;
     }
@@ -110,11 +110,11 @@ ViginerePlus::SolveColumnTranspostion(int min_keylength, int max_keylength, size
             ofs << item << std::endl;
         }
         ofs.close();
-    } else cout << "Unable to open file";
+    } else std::cout << "Unable to open file";
     return transposed;
 }
 
-void ViginerePlus::findBestKey(const string &basicString, std::string &return_key, double &return_fitness) {
+void ViginerePlus::findBestKey(const std::string &basicString, std::string &return_key, double &return_fitness) {
     std::string substring{}, key{};
     char best_char{};
     double best_fitness, fitness;
@@ -122,10 +122,10 @@ void ViginerePlus::findBestKey(const string &basicString, std::string &return_ke
     std::vector<double> frequencies(26, 0.0f);
     return_fitness = std::numeric_limits<double>::max();
     for (int keyLength = 2; keyLength <= 10; keyLength++) {
-        key = string(keyLength, 'x');
+        key = std::string(keyLength, 'x');
         for (int start_index = 0; start_index <= keyLength; start_index++) {
             substring = {};
-            best_fitness = numeric_limits<double>::max();
+            best_fitness = std::numeric_limits<double>::max();
             for (std::size_t index = start_index, stringSize = basicString.size();
                  index < stringSize; index += keyLength) {
                 substring += basicString[index];
@@ -154,7 +154,7 @@ void ViginerePlus::findBestKey(const string &basicString, std::string &return_ke
 
 }
 
-std::string ViginerePlus::decrypt(const string &ciphertext, const string &key) {
+std::string ViginerePlus::decrypt(const std::string &ciphertext, const std::string &key) {
     std::string plaintext(ciphertext.length(), ' ');
     std::size_t keyLength = key.length();
     int keyChar;
@@ -173,7 +173,7 @@ std::string ViginerePlus::decrypt(const string &ciphertext, const string &key) {
  * @param order the order of the transpostion as std::vector, with index being the original column and the value the resulting column
  * @param ciphertext the ciphertext of which to start
  */
-SingleColumnTransposition::SingleColumnTransposition(const vector<int> &order, const string &ciphertext) {
+SingleColumnTransposition::SingleColumnTransposition(const std::vector<int> &order, const std::string &ciphertext) {
 //    save the order for possible output later
     this->order = order;
 //    make every transposition differentiable
@@ -212,9 +212,9 @@ bool SingleColumnTransposition::operator==(const SingleColumnTransposition &othe
     return this->result == other.result;
 }
 
-ostream &operator<<(ostream &os, const SingleColumnTransposition &singleColumnTransposition) {
+std::ostream &operator<<(std::ostream &os, const SingleColumnTransposition &singleColumnTransposition) {
     for (const auto &el: singleColumnTransposition.order) {
-        os << to_string(el) + "; ";
+        os << std::to_string(el) + "; ";
     }
     os << std::endl;
     os << "Result = " + singleColumnTransposition.result;
@@ -228,7 +228,7 @@ ostream &operator<<(ostream &os, const SingleColumnTransposition &singleColumnTr
     return os;
 }
 
-void SingleColumnTransposition::fillEmpties(string &basicString) {
+void SingleColumnTransposition::fillEmpties(std::string &basicString) {
 //    key length
     size_t keylength = getKeyLength();
 //    number of empties = length of the key - the rest of the string/keylength
@@ -290,7 +290,7 @@ void SingleColumnTransposition::constructResult(std::string ciphertext) {
 }
 
 
-void SingleColumnTransposition::removeEmpties(string &basicString) {
+void SingleColumnTransposition::removeEmpties(std::string &basicString) {
     int len = 0;
 //    start at the end
     for (size_t index = basicString.length() - 1; basicString[index] == ' '; index--) {
@@ -307,6 +307,6 @@ std::string SingleColumnTransposition::Solve() {
     return this->result;
 }
 
-const string &SingleColumnTransposition::getResult() const {
+const std::string &SingleColumnTransposition::getResult() const {
     return result;
 }
