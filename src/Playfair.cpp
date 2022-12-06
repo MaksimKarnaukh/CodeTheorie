@@ -29,7 +29,7 @@ std::string Playfair::Solve() {
     normalize(LETTER_FREQUENCY_EN_MODIFIED);
     getAlphabetFrequencies(plaintext,freq);
 
-    double best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN_MODIFIED);
+    double best_fitness = 1-compareFrequencies(freq, LETTER_FREQUENCY_EN_MODIFIED);
 
     string temp_key, temp_plaintext;
     double temp_fitness, dF, prob;
@@ -40,30 +40,34 @@ std::string Playfair::Solve() {
         std::cout << "opened file";
     } else std::cout << "Unable to open file";
 
-    double min = 1;
+    double max = 0;
     string bestfittext;
 
     for (double TEMP = 500; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
+        cout << "----- TEMP : " << std::setprecision(10) << TEMP << endl;
+        cout << "temp_key : " << temp_key << endl;
+        cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+        cout << "dF : " << std::setprecision(10) << dF << endl;
         for (int count = 20000; count > 0; count--) { // 50000, 10000
             temp_key = modifyKey(key);
             temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
             getAlphabetFrequencies(temp_plaintext,temp_freq);
-            temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN_MODIFIED);
-            dF = (-temp_fitness) + best_fitness;
-            if (count % 1000 == 0) {
-                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
-                cout << "temp_key : " << temp_key << endl;
-                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
-                cout << "dF : " << std::setprecision(10) << dF << endl;
-            }
+            temp_fitness = 1-compareFrequencies(temp_freq, LETTER_FREQUENCY_EN_MODIFIED);
+            dF = (temp_fitness) - best_fitness;
+//            if (count % 1000 == 0) {
+//                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
+//                cout << "temp_key : " << temp_key << endl;
+//                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+//                cout << "dF : " << std::setprecision(10) << dF << endl;
+//            }
             if (dF >= 0) {
                 key = temp_key;
                 best_fitness = temp_fitness;
-                if (temp_fitness < min) {
-                    min = temp_fitness;
+                if (temp_fitness > max) {
+                    max = temp_fitness;
                     bestfittext = temp_plaintext;
-                    ofs << temp_plaintext << std::endl << "^^^ " << temp_key << ", " << temp_fitness << std::endl;
+                    ofs << temp_plaintext << std::endl << "^^ " << temp_key << ", " << temp_fitness << std::endl;
                 }
             }
             else {
