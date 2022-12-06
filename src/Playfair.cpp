@@ -25,36 +25,55 @@ std::string Playfair::Solve() {
     getAlphabetFrequencies(plaintext,freq);
     double best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN);
 
-    for (double TEMP = 1000; TEMP >= 0; TEMP = TEMP - 0.1f) { // 2000
-        for (int count = 10000; count > 0; count--) { // 50000
-            string temp_key = modifyKey(key);
-            string temp_plaintext = decipher(temp_key, ciphertext);
+    string temp_key, temp_plaintext;
+    double temp_fitness, dF, prob;
+
+    std::fstream ofs;
+    ofs.open("playfairTest.txt", std::ofstream::out | std::ofstream::trunc);
+    if (ofs.is_open()) {
+        std::cout << "opened file";
+    } else std::cout << "Unable to open file";
+
+    double min = 1;
+    string bestfittext;
+
+    for (double TEMP = 100; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
+        for (int count = 10000; count > 0; count--) { // 50000, 10000
+            temp_key = modifyKey(key);
+            temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
-            getAlphabetFrequencies(temp_plaintext,freq);
-            double temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
-            double dF = (-temp_fitness) - (-best_fitness);
+            getAlphabetFrequencies(temp_plaintext,temp_freq);
+            temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
+            dF = (-temp_fitness) - (-best_fitness);
             if (count % 1000 == 0) {
                 cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
                 cout << "temp_key : " << temp_key << endl;
                 cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
                 cout << "dF : " << std::setprecision(10) << dF << endl;
+
             }
             if (dF >= 0) {
                 key = temp_key;
                 best_fitness = temp_fitness;
+                if (temp_fitness < min) {
+                    min = temp_fitness;
+                    bestfittext = temp_plaintext;
+                    ofs << temp_plaintext << std::endl << "^ " << temp_key << ", " << temp_fitness << std::endl;
+                }
             }
             else {
-                if (TEMP > 0) {
-                    double prob = exp((double)(dF)/TEMP);
+//                if (TEMP > 0) {
+                    prob = exp((double)(dF)/TEMP);
                     if (prob > 1.0*rand()/RAND_MAX) {
                         best_fitness = temp_fitness;
                         key = temp_key;
+                        ofs << temp_plaintext << std::endl << "^ " << temp_key << ", " << temp_fitness << std::endl;
                     }
-                }
+//                }
             }
         }
     }
-
+    cout << "best fit text: " << bestfittext << endl;
     return key;
 
 }
@@ -64,22 +83,6 @@ int Playfair::mod(int a, int b)
     int r = a % b;
     return r < 0 ? r + b : r;
 }
-
-bool Playfair::hasBetterFitness(const map<int, set<basic_string<char>>>& freq1, const map<int, set<basic_string<char>>>& freq2) const {
-//    if they have the same amount of maximum frequencies
-    if (freq1.rbegin()->first == freq2.rbegin()->first) {
-//        the one with more entries is better
-        return freq1.rbegin()->second.size() > freq2.rbegin()->second.size();
-    }
-//    the one with the largers maximum frequencies is better
-    return freq1.rbegin()->first > freq2.rbegin()->first;
-}
-
-int Playfair::getFitness(const map<int, set<basic_string<char>>>& freq) const {
-
-    return freq.rbegin()->first;
-}
-
 
 string Playfair::modifyKey(const string& key) {
 

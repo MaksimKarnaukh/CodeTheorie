@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace std;
-
 // morse code all characters
 /*
 const std::map<std::string, float> MORSE = {{".-", 'a'}, {"-...", 'b'}, {"-.-.", 'c'}, {"-..", 'd'}, {".", 'e'}, {"..-.", 'f'}, {"--.", 'g'}, {"....", 'h'},
@@ -25,11 +23,11 @@ const std::map<std::string, char> MORSE = {{".-", 'a'}, {"-..", 'd'}, {"..-.", '
 class Adfgvx : public AlgorithmDecryption {
 
     static std::string breadthFirstRead(const std::vector<std::pair<std::string, int>> &columns, int size);
-    static std::map<std::string, int> twoLetterFrequency(const vector<std::string> &substrings);
+    static std::map<std::string, int> twoLetterFrequency(const std::vector<std::string> &substrings);
     static std::vector<std::string> splitInSubstrings(const std::string &text);
 
 public:
-    explicit Adfgvx(const string &filename);
+    explicit Adfgvx(const std::string &filename);
     std::string Solve() override;
     static std::string decodeMorse(const std::string &text);
 };
