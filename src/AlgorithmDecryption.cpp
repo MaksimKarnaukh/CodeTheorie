@@ -99,7 +99,7 @@ void AlgorithmDecryption::getAlphabetFrequencies(const std::string &string1, std
     frequencies = std::vector<double>(26, 0.0);
 
     for (const char &c: string1) {
-        frequencies[(int) c - ASCII_A] += 1.0f;
+        frequencies[(int) c - ASCII_A] += 1.0;
     }
     normalize(frequencies);
 }

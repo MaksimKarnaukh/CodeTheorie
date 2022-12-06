@@ -119,7 +119,7 @@ void ViginerePlus::findBestKey(const std::string &basicString, std::string &retu
     char best_char{};
     double best_fitness, fitness;
     std::map<std::string, double> keys;
-    std::vector<double> frequencies(26, 0.0f);
+    std::vector<double> frequencies;
     return_fitness = std::numeric_limits<double>::max();
     for (int keyLength = 2; keyLength <= 10; keyLength++) {
         key = std::string(keyLength, 'x');
