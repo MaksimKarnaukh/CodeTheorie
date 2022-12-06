@@ -37,43 +37,44 @@ std::string Playfair::Solve() {
     double min = 1;
     string bestfittext;
 
-    for (double TEMP = 100; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
-        for (int count = 10000; count > 0; count--) { // 50000, 10000
+    for (double TEMP = 500; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
+        for (int count = 20000; count > 0; count--) { // 50000, 10000
             temp_key = modifyKey(key);
             temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
             getAlphabetFrequencies(temp_plaintext,temp_freq);
             temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
-            dF = (-temp_fitness) - (-best_fitness);
-            if (count % 1000 == 0) {
-                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
-                cout << "temp_key : " << temp_key << endl;
-                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
-                cout << "dF : " << std::setprecision(10) << dF << endl;
-
-            }
+            dF = (-temp_fitness) + best_fitness;
+//            if (count % 1000 == 0) {
+//                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
+//                cout << "temp_key : " << temp_key << endl;
+//                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+//                cout << "dF : " << std::setprecision(10) << dF << endl;
+//            }
             if (dF >= 0) {
                 key = temp_key;
                 best_fitness = temp_fitness;
                 if (temp_fitness < min) {
                     min = temp_fitness;
                     bestfittext = temp_plaintext;
-                    ofs << temp_plaintext << std::endl << "^ " << temp_key << ", " << temp_fitness << std::endl;
+                    ofs << temp_plaintext << std::endl << "^^^ " << temp_key << ", " << temp_fitness << std::endl;
                 }
             }
             else {
 //                if (TEMP > 0) {
-                    prob = exp((double)(dF)/TEMP);
+                    prob = exp(((double)(dF)/TEMP));
+//                    cout << "prob : " << std::setprecision(10) << prob << " >? " << 1.0*rand()/RAND_MAX << endl;
                     if (prob > 1.0*rand()/RAND_MAX) {
                         best_fitness = temp_fitness;
                         key = temp_key;
-                        ofs << temp_plaintext << std::endl << "^ " << temp_key << ", " << temp_fitness << std::endl;
+//                        ofs << temp_plaintext << std::endl << "^ " << temp_key << ", " << temp_fitness << std::endl;
                     }
 //                }
             }
         }
     }
     cout << "best fit text: " << bestfittext << endl;
+
     return key;
 
 }
