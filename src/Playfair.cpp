@@ -51,12 +51,12 @@ std::string Playfair::Solve() {
             getAlphabetFrequencies(temp_plaintext,temp_freq);
             temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN_MODIFIED);
             dF = (-temp_fitness) + best_fitness;
-//            if (count % 1000 == 0) {
-//                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
-//                cout << "temp_key : " << temp_key << endl;
-//                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
-//                cout << "dF : " << std::setprecision(10) << dF << endl;
-//            }
+            if (count % 1000 == 0) {
+                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
+                cout << "temp_key : " << temp_key << endl;
+                cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+                cout << "dF : " << std::setprecision(10) << dF << endl;
+            }
             if (dF >= 0) {
                 key = temp_key;
                 best_fitness = temp_fitness;
