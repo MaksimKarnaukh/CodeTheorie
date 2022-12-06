@@ -17,6 +17,18 @@ using namespace std::chrono;
 int main(int argc, char *argv[]) {
 
     std::string encr_algo;
+//    std::string test;
+//
+//    std::ifstream f("../data/test.txt"); //taking file as inputstream
+//    if (f) {
+//        std::ostringstream ss;
+//        ss << f.rdbuf(); // reading data
+//        test = ss.str();
+//    }
+//    std::vector<double> freq;
+//    AlgorithmDecryption::getAlphabetFrequencies(test,freq);
+//    std::cout << "a " << std::endl;
+
 //    for (auto freq : LETTER_FREQUENCIES){
 //        float sum = 0;
 //        AlgorithmDecryption::normalize(freq.second);

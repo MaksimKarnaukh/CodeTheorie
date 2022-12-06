@@ -22,8 +22,14 @@ std::string Playfair::Solve() {
     string plaintext = decipher(key, ciphertext);
 
     std::vector<double> freq;
+//    i = j
+    std::vector<double> LETTER_FREQUENCY_EN_MODIFIED = LETTER_FREQUENCY_EN;
+    LETTER_FREQUENCY_EN_MODIFIED[8] = LETTER_FREQUENCY_EN_MODIFIED[8] + LETTER_FREQUENCY_EN_MODIFIED[9];
+    LETTER_FREQUENCY_EN_MODIFIED[9] = 0;
+    normalize(LETTER_FREQUENCY_EN_MODIFIED);
     getAlphabetFrequencies(plaintext,freq);
-    double best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN);
+
+    double best_fitness = compareFrequencies(freq, LETTER_FREQUENCY_EN_MODIFIED);
 
     string temp_key, temp_plaintext;
     double temp_fitness, dF, prob;
@@ -43,7 +49,7 @@ std::string Playfair::Solve() {
             temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
             getAlphabetFrequencies(temp_plaintext,temp_freq);
-            temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN);
+            temp_fitness = compareFrequencies(temp_freq, LETTER_FREQUENCY_EN_MODIFIED);
             dF = (-temp_fitness) + best_fitness;
 //            if (count % 1000 == 0) {
 //                cout << "----- TEMP : " << std::setprecision(10) << TEMP << " , COUNT : " << count << endl;
