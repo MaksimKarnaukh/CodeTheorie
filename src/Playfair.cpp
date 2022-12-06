@@ -122,7 +122,7 @@ string Playfair::modifyKey(const string& key) {
 
 string Playfair::decipher(const string& key, const string& ciphertext) {
     string plaintext;
-    for (auto i = 0; i < ciphertext.size(); i += 2) {
+    for (int i = 0, ciphertext_size = ciphertext.size(); i < ciphertext_size; i += 2) {
 
         char first_letter = ciphertext[i];
         char second_letter = ciphertext[i + 1];
