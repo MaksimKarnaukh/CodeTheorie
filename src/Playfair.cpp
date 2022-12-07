@@ -22,7 +22,7 @@ std::string Playfair::Solve() {
     string ciphertext = this->getCipherText();
     string plaintext = decipher(key, ciphertext);
 
-    key = "WXYZVANEUITBCDSGHKLFOPQRM";
+    key = "ANEUITBCDSGHKLFOPQRMWXYZV";
     plaintext = decipher(key, ciphertext);
 
     std::vector<double> freq;
@@ -45,11 +45,12 @@ std::string Playfair::Solve() {
     if (ofs.is_open()) {
         std::cout << "opened file";
     } else std::cout << "Unable to open file";
+    ofs << plaintext << std::endl << "^^ " << key << ", " << best_fitness << std::endl;
 
     double max = 0;
     string bestfittext;
 
-    for (double TEMP = 500; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
+    for (double TEMP = 500; TEMP > 0; TEMP = TEMP - 1) { // 2000, 1000
 //        cout << "----- TEMP : " << std::setprecision(10) << TEMP << endl;
 //        cout << "temp_key : " << temp_key << endl;
 //        cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
