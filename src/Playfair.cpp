@@ -13,6 +13,7 @@ std::string Playfair::Solve() {
     std::random_device rd;
     random_engine = mt19937(rd()); // seeding the generator
 //    vector<string> parent_key; // representation of 5x5 matrix. Each entry is a row consisting of 5 chars.
+
     string key = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
 //    for (auto i = 0; i < alfabet_string.size(); i+=5) {
 //        parent_key.push_back(alfabet_string.substr(i, 5));
@@ -20,6 +21,9 @@ std::string Playfair::Solve() {
 
     string ciphertext = this->getCipherText();
     string plaintext = decipher(key, ciphertext);
+
+    key = "WXYZVANEUITBCDSGHKLFOPQRM";
+    plaintext = decipher(key, ciphertext);
 
     std::vector<double> freq;
 //    i = j
@@ -30,6 +34,8 @@ std::string Playfair::Solve() {
     getAlphabetFrequencies(plaintext,freq);
 
     double best_fitness = 1-compareFrequencies(freq, LETTER_FREQUENCY_EN_MODIFIED);
+
+    cout << endl << "plain: " << plaintext << endl << "f: " << best_fitness << endl;
 
     string temp_key, temp_plaintext;
     double temp_fitness, dF, prob;
@@ -44,11 +50,11 @@ std::string Playfair::Solve() {
     string bestfittext;
 
     for (double TEMP = 500; TEMP > 0; TEMP = TEMP - 0.1) { // 2000, 1000
-        cout << "----- TEMP : " << std::setprecision(10) << TEMP << endl;
-        cout << "temp_key : " << temp_key << endl;
-        cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
-        cout << "dF : " << std::setprecision(10) << dF << endl;
-        for (int count = 20000; count > 0; count--) { // 50000, 10000
+//        cout << "----- TEMP : " << std::setprecision(10) << TEMP << endl;
+//        cout << "temp_key : " << temp_key << endl;
+//        cout << "temp_fitness : " << std::setprecision(10) << temp_fitness << endl;
+//        cout << "dF : " << std::setprecision(10) << dF << endl;
+        for (int count = 30000; count > 0; count--) { // 50000, 10000
             temp_key = modifyKey(key);
             temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
