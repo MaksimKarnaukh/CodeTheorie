@@ -83,14 +83,13 @@ double AlgorithmDecryption::compareFrequencies(const std::vector<double> &left, 
 }
 
 void AlgorithmDecryption::normalize(std::vector<double> &vector1) {
-    double divider{0};
+    double total_frequencies {0};
 
     for (const double &frequency: vector1) {
-        divider += (frequency * frequency);
+        total_frequencies += frequency;
     }
-    divider = std::sqrt(divider);
     for (double &elem: vector1) {
-        elem /= divider;
+        elem /= total_frequencies;
     }
 
 }
@@ -99,7 +98,7 @@ void AlgorithmDecryption::getAlphabetFrequencies(const std::string &string1, std
     frequencies = std::vector<double>(26, 0.0);
 
     for (const char &c: string1) {
-        frequencies[(int) c - ASCII_A] += 1.0f;
+        frequencies[(int) c - ASCII_A] += 1.0;
     }
     normalize(frequencies);
 }

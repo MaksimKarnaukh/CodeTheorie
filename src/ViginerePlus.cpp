@@ -119,7 +119,7 @@ void ViginerePlus::findBestKey(const std::string &basicString, std::string &retu
     char best_char{};
     double best_fitness, fitness;
     std::map<std::string, double> keys;
-    std::vector<double> frequencies(26, 0.0f);
+    std::vector<double> frequencies;
     return_fitness = std::numeric_limits<double>::max();
     for (int keyLength = 2; keyLength <= 10; keyLength++) {
         key = std::string(keyLength, 'x');
@@ -189,18 +189,21 @@ SingleColumnTransposition::SingleColumnTransposition(const std::vector<int> &ord
 }
 
 bool SingleColumnTransposition::operator>(const SingleColumnTransposition &other) const {
-//    if they have the same amount of maximum frequencies
-    if (this->m.rbegin()->first == other.m.rbegin()->first) {
-//       if they also have the same amount of strings in the most frequent entry
-        if (this->m.rbegin()->second.size() == other.m.rbegin()->second.size()) {
+    // Store the reverse iterator to the last element of the map in a local variable
+    auto it = this->m.rbegin();
+
+//    Compare the maximum frequencies of the two objects
+    if (it->first == other.m.rbegin()->first) {
+//       Compare the number of strings in the most frequent entry
+        if (it->second.size() == other.m.rbegin()->second.size()) {
 //            differentiate on id, higher is better (although both are equally good, otherwise we get undefined behaviour)
             return this->id > other.id;
         }
 //        the one with more entries is better
-        return this->m.rbegin()->second.size() > other.m.rbegin()->second.size();
+        return it->second.size() > other.m.rbegin()->second.size();
     }
-//    the one with the largers maximum frequencies is better
-    return this->m.rbegin()->first > other.m.rbegin()->first;
+//    the one with the larger maximum frequencies is better
+    return it->first > other.m.rbegin()->first;
 }
 
 SingleColumnTransposition::SingleColumnTransposition() {
