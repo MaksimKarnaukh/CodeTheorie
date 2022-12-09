@@ -15,6 +15,10 @@ public:
 
     mt19937 random_engine;
 
+    /**
+     * Playfair constructor function
+     * @param filename: text file containing the ciphertext encrypted with playfair.
+     */
     Playfair(const std::string& filename);
 
     /**
@@ -36,15 +40,18 @@ public:
                     If dF < 0 (fitness of child is worse than parent),
                         set parent = child with probability e^(dF/T).
 
-     * @return
+     * @return: best key
      */
     std::string Solve() override;
 
-    bool hasBetterFitness(const map<int, set<basic_string<char>>>& freq1, const map<int, set<basic_string<char>>>& freq2) const;
-
-    int getFitness(const map<int, set<basic_string<char>>>& freq1) const;
-
-    static int mod(int a, int b);
+    /**
+     * Modulo function that performs correctly for negative numbers. This needed to be self-implemented since the
+     * standard C++ mod() function doesn't give the correct answer when using negative numbers.
+     * @param a: first number
+     * @param b: second number (modulus)
+     * @return remainder (a mod b)
+     */
+    int mod(int a, int b);
 
     /**
      *  Changes the key with the following actions and corresponding frequencies:
