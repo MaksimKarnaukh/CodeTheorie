@@ -8,23 +8,20 @@
 #include <algorithm>
 #include <cmath>
 
-// morse code all characters
-/*
-const std::map<std::string, float> MORSE = {{".-", 'a'}, {"-...", 'b'}, {"-.-.", 'c'}, {"-..", 'd'}, {".", 'e'}, {"..-.", 'f'}, {"--.", 'g'}, {"....", 'h'},
-                                            {"..", 'i'}, {".---", 'j'}, {"-.-", 'k'}, {".-..", 'l'}, {"--", 'm'}, {"-.", 'n'}, {"---", 'o'}, {".--.", 'p'},
-                                            {"--.-", 'q'}, {".-.", 'r'}, {"...", 's'}, {"-", 't'}, {"..-", 'u'}, {"...-", 'v'}, {".--", 'w'}, {"-..-", 'x'},
-                                            {"-.--", 'y'}, {"--..", 'z'}, {"-----", '0'}, {".----", '1'}, {"..---", '2'}, {"...--", '3'}, {"....-", '4'},
-                                            {".....", '5'}, {"-....", '6'}, {"--...", '7'}, {"---..", '8'}, {"----.", '9'}};
-*/
-// morse code essential characters
-const std::map<std::string, char> MORSE = {{".-", 'a'}, {"-..", 'd'}, {"..-.", 'f'}, {"--.", 'g'}, {"...-", 'v'}, {"-..-", 'x'}};
-
 
 class Adfgvx : public AlgorithmDecryption {
+
+    std::map<std::string, std::vector<std::pair<float, char>>> languageLetterFrequencies;
 
     static std::string breadthFirstRead(const std::vector<std::pair<std::string, int>> &columns, int size);
     static std::map<std::string, int> twoLetterFrequency(const std::vector<std::string> &substrings);
     static std::vector<std::string> splitInSubstrings(const std::string &text);
+
+    static void twoLetterInput(std::string &text);
+    static bool userInput(std::string &text);
+
+    static std::string substitute(const std::string &text);
+    static double analyseDigraphFitness(const std::string &text);
 
 public:
     explicit Adfgvx(const std::string &filename);
