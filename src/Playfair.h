@@ -44,7 +44,7 @@ public:
 
     int getFitness(const map<int, set<basic_string<char>>>& freq1) const;
 
-    int mod(int a, int b);
+    static int mod(int a, int b);
 
     /**
      *  Changes the key with the following actions and corresponding frequencies:
