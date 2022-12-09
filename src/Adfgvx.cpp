@@ -167,8 +167,8 @@ std::string Adfgvx::Solve() {
                 bool similarValues = true;
                 double languageValue = 0;
                 for (int i = 0; i < 10; i++) {
-                    double tempValue = std::abs((double(letterFrequencies[i].first) / divider) - languageLetters.second[i].first);
-                    if (tempValue > 0.1) {
+                    double tempValue = std::abs((double(letterFrequencies[i].first) / double(newText.size()) * 2) - (languageLetters.second[i].first));
+                    if (tempValue > 0.01) {
                         similarValues = false;
                         break;
                     }
@@ -201,13 +201,7 @@ std::string Adfgvx::Solve() {
 
             std::cout << "Percentage: ";
             for (const auto& val : letterFrequencies) {
-                std::cout << val.second << ": " << double(val.first) / double(newText.size()) * 200 << ", ";
-            }
-            std::cout << "\n";
-
-            std::cout << "Normalized: ";
-            for (const auto& val : letterFrequencies) {
-                std::cout << val.second << ": " << double(val.first) / divider << ", ";
+                std::cout << val.second << ": " << double(val.first) / double(newText.size()) * 2 << ", ";
             }
             std::cout << "\n";
 
