@@ -29,7 +29,7 @@ public:
         1. Generate a random key, called the 'parent', decipher the ciphertext
         using this key.
         2. Rate the fitness of the deciphered text, store the result.
-        3. for(TEMP = 10;TEMP >= 0; TEMP = TEMP - STEP)
+        3. for(TEMP = 10; TEMP >= 0; TEMP = TEMP - STEP)
                 for (count = 50,000; count>0; count--)
                     Change the parent key slightly (e.g. swap two characters in the
                         key at random) to get child key,
@@ -58,13 +58,13 @@ public:
 
         Swap single letters (90%)
         Swap random rows (2%)
-        Swap columns (2%)
-        Flip all rows (2%)
-        Flip all columns (2%)
-        Reverse the whole key (2%)
+        Swap random columns (2%)
+        Flip all rows (2%) (outside becomes inside and vice versa)
+        Flip all columns (2%) (outside becomes inside and vice versa)
+        Reverse the whole key (2%) (we'll use the reverse() function)
 
-     * @param key
-     * @return
+     * @param key : string consisting of 25 different letters.
+     * @return : modified key
      */
     string modifyKey(const string& key);
 
@@ -82,7 +82,7 @@ public:
      * Decrypts the ciphertext with the given key according to the playfair algorithm.
      * @param key : string consisting of 25 different letters.
      * @param ciphertext : ciphertext
-     * @return : plaintext (decrypted text)
+     * @return : plaintext (decrypted text with the key)
      */
     string decipher(const string& key, const string& ciphertext);
 

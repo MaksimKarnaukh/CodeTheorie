@@ -11,18 +11,17 @@ Playfair::Playfair(const string &filename) : AlgorithmDecryption(filename) {
 std::string Playfair::Solve() {
 
     std::random_device rd;
-    random_engine = mt19937(rd()); // seeding the generator
+    random_engine = mt19937(rd()); // seeding the random generator
     int fitness_modifier = 600; // we need this so that our probability formula with dF works better (600 turned out be a decent value).
 
     string key = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
 
     string ciphertext = this->getCipherText();
+
+//    key = "PVNBHQYECKRZUDLMXISFOWATG";
+//    key = "ANEUITBCDSGHKLFOPQRMWXYZV";
+
     string plaintext = decipher(key, ciphertext);
-
-    key = "ANEUITBCDSGHKLFOPQRMWXYZV";
-
-    key = "PEAGFVMYZXLBNRQKHTICWSUDO";
-    plaintext = decipher(key, ciphertext);
 
     std::vector<double> freq;
     std::vector<double> LETTER_FREQUENCY_EN_MODIFIED = LETTER_FREQUENCY_EN;
@@ -30,15 +29,14 @@ std::string Playfair::Solve() {
     LETTER_FREQUENCY_EN_MODIFIED[9] = 0; // playfair doesn't use the letter 'J', so we 'remove' that frequency.
     normalize(LETTER_FREQUENCY_EN_MODIFIED);
     getAlphabetFrequencies(plaintext,freq);
-
     double best_fitness = (1-compareFrequencies(freq, LETTER_FREQUENCY_EN_MODIFIED))*fitness_modifier;
 
-//    cout << endl << "plain: " << plaintext << endl << "f: " << best_fitness/fitness_modifier << endl;
+    cout << endl << "plain: " << plaintext << endl << "fitness: " << best_fitness/fitness_modifier << endl;
 
     string temp_key, temp_plaintext;
     double temp_fitness, dF, prob;
 
-    std::fstream ofs;
+    std::fstream ofs; // file to write our output to (deciphered text, key and fitness)
     ofs.open("playfairTest.txt", std::ofstream::out | std::ofstream::trunc);
     if (ofs.is_open()) {
         std::cout << "Opened playfair text file";
@@ -48,14 +46,14 @@ std::string Playfair::Solve() {
     double max_fitness = 0;
     string bestfittext;
 
-    for (double TEMP = 300 ; TEMP > 0; TEMP = TEMP - 0.1) { // we need to choose a good value for TEMP (temperature) ourselves.
+    for (double TEMP = 300; TEMP > 0; TEMP = TEMP - 0.1) { // we need to choose a good value for TEMP (temperature) ourselves.
         for (int count = 50000; count > 0; count--) { // we need to choose a good value for count ourselves.
             temp_key = modifyKey(key);
             temp_plaintext = decipher(temp_key, ciphertext);
             std::vector<double> temp_freq;
             getAlphabetFrequencies(temp_plaintext,temp_freq);
             temp_fitness = (1-compareFrequencies(temp_freq, LETTER_FREQUENCY_EN_MODIFIED))*fitness_modifier;
-            dF = (temp_fitness) - best_fitness;
+            dF = temp_fitness - best_fitness;
 
             if (dF >= 0) {
                 key = temp_key;
@@ -144,7 +142,7 @@ string Playfair::decipher(const string& key, const string& ciphertext) {
             second_letter = key[((second_letter_index - isFirstLetterFirst * abs((first_letter_index % 5) - (second_letter_index %5))) % 5) +(second_letter_index / 5) * 5];
         }
 
-        if (plaintext[plaintext.size() - 2] == first_letter && plaintext[plaintext.size() - 1] == 'X') {
+        if (plaintext[plaintext.size() - 2] == first_letter && plaintext[plaintext.size() - 1] == 'X') { // remove the extra placed letter
             plaintext.pop_back();
         }
         plaintext.push_back(first_letter);
