@@ -105,7 +105,7 @@ std::string Enigma::Solve() {
                     break;
                 }
                 // now we have to find a suitable k (see course notes).
-                makeGraph(sub_string);
+                std::map<size_t, std::pair<std::string, std::string>> edges = makeGraph(sub_string);
 
             }
             tickRotors(start_pos);
@@ -151,7 +151,7 @@ std::map<size_t, std::pair<std::string, std::string>> Enigma::makeGraph(const st
     for (size_t char_pos = 0; char_pos < input.length(); char_pos++) {
         char1 = input[char_pos];
         char2 = this->crib[char_pos];
-        edges[char_pos] = std::make_pair(char1, char2);
+        edges[char_pos+1] = std::make_pair(char1, char2);
     }
     return edges;
 }
