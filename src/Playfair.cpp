@@ -20,6 +20,7 @@ std::string Playfair::Solve() {
 
 //    key = "PVNBHQYECKRZUDLMXISFOWATG";
 //    key = "ANEUITBCDSGHKLFOPQRMWXYZV";
+//    key = "IANEUSTBCDFGHKLMOPQRVWXYZ";
 
     string plaintext = decipher(key, ciphertext);
 

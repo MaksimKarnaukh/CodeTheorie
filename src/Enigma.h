@@ -41,6 +41,21 @@ public:
      * @param comb
      */
     void GenArrangement(int n, int k, int idx, int used, int arran, std::vector<std::array<int,3>> &comb);
+
+    /**
+     * Function to check if a letter is enciphered as itself (used when performing crib dragging)
+     * @param input : input string (sub-string of the ciphertext)
+     * @return : false if a letter is enciphered as itself, true otherwise.
+     */
+    bool checkLetterCorrespondence(const std::string &input);
+
+    /**
+     * Function to make the graph.
+     * @param input : input string (sub-string of the ciphertext)
+     * @return :
+     */
+    std::map<size_t, std::pair<std::string, std::string>> makeGraph(const std::string &input);
+
 };
 
 

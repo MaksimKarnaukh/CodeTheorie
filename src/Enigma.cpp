@@ -101,20 +101,16 @@ std::string Enigma::Solve() {
         do {
             for (size_t c = 0; c < end_index; c++) {
                 sub_string = input.substr(c, criblength);
+                if (checkLetterCorrespondence(sub_string)) {
+                    break;
+                }
                 // now we have to find a suitable k (see course notes).
+                makeGraph(sub_string);
 
             }
-
             tickRotors(start_pos);
         } while (start_pos.at(2) != 0 and start_pos.at(1) != 0 and start_pos.at(0) != 0); // loop over all possible rotor configurations
     }
-
-
-
-
-
-
-
 
 
     std::cout << "a";
@@ -136,4 +132,26 @@ void Enigma::GenArrangement(int n, int k, int idx, int used, int arran, std::vec
 
 char Enigma::alphabetIndex(int index) {
     return (char) (index + ASCII_A);
+}
+
+bool Enigma::checkLetterCorrespondence(const std::string &input) {
+    for (size_t char_pos = 0; char_pos < input.length(); char_pos++) {
+        if (input[char_pos] == this->crib[char_pos]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::map<size_t, std::pair<std::string, std::string>> Enigma::makeGraph(const std::string &input) {
+
+    std::map<size_t, std::pair<std::string, std::string>> edges{};
+    char char1;
+    char char2;
+    for (size_t char_pos = 0; char_pos < input.length(); char_pos++) {
+        char1 = input[char_pos];
+        char2 = this->crib[char_pos];
+        edges[char_pos] = std::make_pair(char1, char2);
+    }
+    return edges;
 }
