@@ -230,7 +230,7 @@ std::set<gammaEdge> Enigma::makeGammaGraph(const std::set<gammaEdge>& symmetricG
             char enigmaInput = char(ASCII_A + c);
             char enigmaOutput = char (ASCII_A + sendThrough(c,fms,rotor_plus_k_pos, {}));
             gammaEdge = std::make_pair(std::make_pair(c1, enigmaInput), std::make_pair(c2, enigmaOutput));
-            gammaSymmetricEdges.insert(gammaEdge);
+            changedGammaGraph.insert(gammaEdge);
         }
     }
 
