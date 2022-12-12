@@ -39,15 +39,10 @@ std::array<int, 26> Enigma::PermutationStringToArray(const std::string &input) {
     }
     return output;
 }
-int Enigma::sendThrough(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
-                                const pos &stand_fast_middle_slow,
-                                const std::array<int, 26> &plugBoard){
-    bool hasPlugboard = !plugBoard.empty();
+
+int Enigma::sendThroughRotors(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
+                              const pos &stand_fast_middle_slow) {
     int char_code = char_code_in;
-    // Plugboard
-    if (hasPlugboard) {
-        char_code = plugBoard.at(char_code);
-    }
     // three rotors
     for (int rotor_nr = 0; rotor_nr < 3; rotor_nr++) { // we go to the left
         char_code = (char_code + stand_fast_middle_slow.at(rotor_nr)) % 26;
@@ -60,12 +55,23 @@ int Enigma::sendThrough(const int char_code_in, const std::array<int, 3> &fast_m
         char_code = this->inverse_rotoren.at(fast_middle_slow.at(rotor_nr)).at(char_code);
         char_code = (char_code + 26 - stand_fast_middle_slow.at(rotor_nr)) % 26;
     }
-//        Plugboard
-    if (hasPlugboard) {
-        char_code = plugBoard.at(char_code);
-    }
     return char_code;
 }
+
+int Enigma::sendThrough(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
+                        const pos &stand_fast_middle_slow,
+                        const std::array<int, 26> &plugBoard) {
+    int char_code = char_code_in;
+    // Plugboard
+    char_code = plugBoard.at(char_code);
+//    rotors/reflector
+    sendThroughRotors(char_code, fast_middle_slow, stand_fast_middle_slow);
+
+//        Plugboard
+    char_code = plugBoard.at(char_code);
+    return char_code;
+}
+
 std::string Enigma::sendThrough(const std::string &input, const std::array<int, 3> &fast_middle_slow,
                                 const pos &start_stand_fast_mid_slow,
                                 const std::array<int, 26> &plugBoard) {
@@ -74,7 +80,7 @@ std::string Enigma::sendThrough(const std::string &input, const std::array<int, 
     std::array<int, 3> stand_fast_middle_slow = start_stand_fast_mid_slow;
     for (char input_char: input) {
         char_code = (int) (unsigned char) input_char - ASCII_A;
-        char_code = sendThrough(char_code,fast_middle_slow,stand_fast_middle_slow, plugBoard);
+        char_code = sendThrough(char_code, fast_middle_slow, stand_fast_middle_slow, plugBoard);
 
         output += alphabetIndex(char_code);
 
@@ -97,12 +103,12 @@ void Enigma::tickRotors(pos &stand_fast_middle_slow, int ticks) {
 }
 
 void Enigma::tickRotors(pos &stand_fast_middle_slow) {
-    Enigma::tickRotors(stand_fast_middle_slow,1);
+    Enigma::tickRotors(stand_fast_middle_slow, 1);
 }
 
-pos Enigma::RotorPosPlusK(const std::array<int,3>& start_pos,int K){
-    std::array<int,3> newRotorPos = start_pos;
-    Enigma::tickRotors(newRotorPos,K);
+pos Enigma::RotorPosPlusK(const std::array<int, 3> &start_pos, int K) {
+    std::array<int, 3> newRotorPos = start_pos;
+    Enigma::tickRotors(newRotorPos, K);
     return newRotorPos;
 }
 
@@ -143,7 +149,7 @@ std::string Enigma::Solve() {
 void Enigma::GenArrangement(int n, int k, int idx, int used, int arran, std::vector<std::array<int, 3>> &comb) {
     if (idx == k) {
         comb.push_back(
-                std::array<int, 3>({std::to_string(arran)[0], std::to_string(arran)[1], std::to_string(arran)[2]}));
+                std::array<int, 3>({arran / 100 % 100, arran / 10 % 10, arran % 10}));
         return;
     }
 
@@ -197,7 +203,8 @@ std::set<gammaEdge> Enigma::gammaGraph() {
     return gammaSymmetricEdges;
 }
 
-std::set<gammaEdge> Enigma::makeAllGammaGraphs(const std::set<gammaEdge> &symmetricGammaGraph, const _edges &graph, const std::vector<std::array<int, 3>>& vectorcombs, pos start_pos) {
+std::set<gammaEdge> Enigma::makeAllGammaGraphs(const std::set<gammaEdge> &symmetricGammaGraph, const _edges &graph,
+                                               const std::vector<std::array<int, 3>> &vectorcombs, pos start_pos) {
     // per rotorstand, heel het circuit opbouwen.
 
     for (const std::array<int, 3> &fms: vectorcombs) { // all possible rotor positions
@@ -212,23 +219,23 @@ std::set<gammaEdge> Enigma::makeAllGammaGraphs(const std::set<gammaEdge> &symmet
     return std::set<gammaEdge>();
 }
 
-std::set<gammaEdge> Enigma::makeGammaGraph(const std::set<gammaEdge>& symmetricGammaGraph, const _edges& graph, const std::array<int, 3>& fms, pos& start_pos) {
+std::set<gammaEdge> Enigma::makeGammaGraph(const std::set<gammaEdge> &symmetricGammaGraph, const _edges &graph,
+                                           const std::array<int, 3> &fms, pos &start_pos) {
 
-    pos rotor_plus_k_pos {};
+    pos rotor_plus_k_pos{};
 
     std::set<gammaEdge> changedGammaGraph = symmetricGammaGraph;
-    char c1{}, c2 {};
-    std::set<gammaEdge> gammaSymmetricEdges{};
+    char c1{}, c2{};
     gammaEdge gammaEdge{};
-    for (const auto & it : graph) {
+    for (const auto &it: graph) {
         int rel_pos = (int) it.first;
         c1 = it.second.first;
         c2 = it.second.second;
 
-        rotor_plus_k_pos = Enigma::RotorPosPlusK(start_pos,rel_pos);
+        rotor_plus_k_pos = Enigma::RotorPosPlusK(start_pos, rel_pos);
         for (int c = 0; c < 26; c++) {
             char enigmaInput = char(ASCII_A + c);
-            char enigmaOutput = char (ASCII_A + sendThrough(c,fms,rotor_plus_k_pos, {}));
+            char enigmaOutput = char(ASCII_A + sendThroughRotors(c, fms, rotor_plus_k_pos));
             gammaEdge = std::make_pair(std::make_pair(c1, enigmaInput), std::make_pair(c2, enigmaOutput));
             changedGammaGraph.insert(gammaEdge);
         }

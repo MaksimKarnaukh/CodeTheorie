@@ -82,6 +82,9 @@ public:
     sendThrough(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
                 const pos &start_stand_fast_mid_slow,
                 const std::array<int, 26> &plugBoard);
+
+    int sendThroughRotors(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
+                          const pos &stand_fast_middle_slow);
 };
 
 
