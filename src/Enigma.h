@@ -7,6 +7,9 @@
 
 #include "AlgorithmDecryption.h"
 #include <algorithm>
+typedef std::map<size_t, std::pair<char, char>> edges;
+typedef std::pair<std::pair<char,char>,std::pair<char,char>> gammaEdge;
+
 
 class Enigma : public AlgorithmDecryption {
     std::array<std::array<int, 26>, 5> rotoren {}; // p0 - p4

@@ -4,6 +4,7 @@
 
 
 #include "Enigma.h"
+const static std::set<gammaEdge> symmetricGammagraph = Enigma::gammaGraph();
 
 Enigma::Enigma(const std::string &filename) : AlgorithmDecryption(filename) {
     std::ifstream f(filename); //taking file as inputstream
