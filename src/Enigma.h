@@ -17,7 +17,6 @@ class Enigma : public AlgorithmDecryption {
 
 
 
-
 public:
     explicit Enigma(const std::string &filename);
 
@@ -50,11 +49,25 @@ public:
     bool checkLetterCorrespondence(const std::string &input);
 
     /**
-     * Function to make the graph.
+     * Function to make the crib graph.
      * @param input : input string (sub-string of the ciphertext)
-     * @return :
+     * @return : graph edges.
      */
-    std::map<size_t, std::pair<std::string, std::string>> makeGraph(const std::string &input);
+    edges makeGraph(const std::string &input);
+
+    /**
+     * 26x26 changing graph, only the symmetric edges.
+     * @return : edges of the (gamma) graph.
+     */
+    static std::set<gammaEdge> gammaGraph();
+
+    /**
+     *
+     * @param symmetricGammaGraph : 26x26 changing graph, only the symmetric edges.
+     * @param cribGraph : crib graph
+     * @return : changed gamma graph edges.
+     */
+    std::set<gammaEdge> changeGammaGraph(std::set<gammaEdge>& symmetricGammaGraph, const edges& cribGraph);
 
 };
 

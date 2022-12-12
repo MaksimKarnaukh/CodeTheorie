@@ -97,19 +97,24 @@ std::string Enigma::Solve() {
     std::vector<std::array<int,3>> vectorcombs{};
     std::string sub_string {};
     GenArrangement(5, 3, 0, 0, 0, vectorcombs);
-    for (const std::array<int, 3>& fms:vectorcombs){ // all possible rotor positions
-        do {
-            for (size_t c = 0; c < end_index; c++) {
-                sub_string = input.substr(c, criblength);
-                if (checkLetterCorrespondence(sub_string)) {
-                    break;
-                }
-                // now we have to find a suitable k (see course notes).
-                std::map<size_t, std::pair<std::string, std::string>> edges = makeGraph(sub_string);
+    std::map<size_t, std::pair<char, char>> edges;
+    std::set<gammaEdge> gammaEdges = gammaGraph();
 
+    for (size_t c = 0; c < end_index; c++) { // crib dragging loop
+        sub_string = input.substr(c, criblength);
+        if (!checkLetterCorrespondence(sub_string)) { // if letter enciphered as itself
+
+            // now we have to find a suitable k (see course notes).
+            edges = makeGraph(sub_string);
+            for (const std::array<int, 3>& fms:vectorcombs) { // all possible rotor positions
+                do {
+
+                    tickRotors(start_pos);
+                } while (start_pos.at(2) != 0 and start_pos.at(1) != 0 and start_pos.at(0) != 0); // loop over all possible rotor configurations
             }
-            tickRotors(start_pos);
-        } while (start_pos.at(2) != 0 and start_pos.at(1) != 0 and start_pos.at(0) != 0); // loop over all possible rotor configurations
+
+        }
+
     }
 
 
@@ -143,9 +148,9 @@ bool Enigma::checkLetterCorrespondence(const std::string &input) {
     return false;
 }
 
-std::map<size_t, std::pair<std::string, std::string>> Enigma::makeGraph(const std::string &input) {
+std::map<size_t, std::pair<char, char>> Enigma::makeGraph(const std::string &input) {
 
-    std::map<size_t, std::pair<std::string, std::string>> edges{};
+    std::map<size_t, std::pair<char, char>> edges{};
     char char1;
     char char2;
     for (size_t char_pos = 0; char_pos < input.length(); char_pos++) {
@@ -154,4 +159,29 @@ std::map<size_t, std::pair<std::string, std::string>> Enigma::makeGraph(const st
         edges[char_pos+1] = std::make_pair(char1, char2);
     }
     return edges;
+}
+
+std::set<gammaEdge> Enigma::gammaGraph() {
+
+    std::set<gammaEdge> gammaSymmetricEdges {};
+    gammaEdge gammaEdge {};
+    char c1,c2;
+//    A-Y
+    for (int i = 0; i < 25; i++) {
+        for (int j = i+1; j < 26; j++) {
+//              $(i+1) - Z
+            if ((i - j) % 13 == 0) {
+                c1 = char (ASCII_A+i);
+                c2 = char (ASCII_A+j);
+                gammaEdge = std::make_pair(std::make_pair(c1,c2),std::make_pair(c2,c1));
+                gammaSymmetricEdges.insert(gammaEdge);
+            }
+        }
+    }
+
+    return gammaSymmetricEdges;
+}
+
+std::set<gammaEdge> Enigma::changeGammaGraph(std::set<gammaEdge>& symmetricGammaGraph, const edges& graph) {
+    return std::set<gammaEdge>();
 }
