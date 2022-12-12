@@ -14,14 +14,17 @@ ViginerePlus::ViginerePlus(const std::string &filename) : AlgorithmDecryption(fi
  * @return the resulting string ViginerePlus_ColumnTransposition.txt
  */
 std::string ViginerePlus::Solve() {
-//    Get a vector with most likely solutions of the column transpostion
-    std::set<SingleColumnTransposition, std::greater<>> columnTranspositions = this->SolveColumnTranspostion(2, 9, 3);
-
     std::string bestKey{}, tempKey{};
     double tempFittness{};
     std::numeric_limits<double>::max();
     std::pair<std::string, double> temp{};
     std::map<double, std::map<std::string, SingleColumnTransposition>> results{};
+    int min_keylength_column_trans = 1, max_keylength_column_trans = 10, nr_col_transpositions_to_keep = 1;
+
+//    Get a vector with most likely solutions of the column transpostion
+    std::set<SingleColumnTransposition, std::greater<>> columnTranspositions = this->SolveColumnTranspostion(
+            min_keylength_column_trans, max_keylength_column_trans, nr_col_transpositions_to_keep);
+
 
     for (auto &columnTranspo: columnTranspositions) {
         ViginerePlus::findBestKey(columnTranspo.getResult(), tempKey, tempFittness);
@@ -32,6 +35,7 @@ std::string ViginerePlus::Solve() {
             results[tempFittness].insert({tempKey, columnTranspo});
         }
     }
+
     std::string input, plaintext;
     for (const auto &[fitness2, result]: results)
         for (const auto &[key, columnTranspo]: result) {
@@ -162,7 +166,7 @@ std::string ViginerePlus::decrypt(const std::string &ciphertext, const std::stri
         keyChar = key[start_index];
         for (std::size_t index = start_index, ciphertextSize = ciphertext.size();
              index < ciphertextSize; index += keyLength) {
-            plaintext[index] = (char) (( ciphertext[index] - keyChar + 26) % 26 + ASCII_A);
+            plaintext[index] = (char) ((ciphertext[index] - keyChar + 26) % 26 + ASCII_A);
         }
     }
     return plaintext;

@@ -8,8 +8,36 @@
 #include "AlgorithmDecryption.h"
 #include <algorithm>
 typedef std::map<size_t, std::pair<char, char>> _edges;
-typedef std::pair<std::pair<char,char>,std::pair<char,char>> gammaEdge;
+typedef std::pair<char,char> state;
+typedef std::map<state, std::vector<state>> gammaEdges;
+
 typedef std::array<int,3> pos;
+
+typedef std::array<std::array<bool, 26>,26> TruthGraph;
+
+class EnigmaConfiguration{
+    int cribIndex = -1;
+    pos startPos;
+    std::array<int,3> fms;
+public:
+    int getCribIndex() const;
+
+    void setCribIndex(int cribIndex);
+
+    const pos &getStartPos() const;
+
+    void setStartPos(const pos &startPos);
+
+    const std::array<int, 3> &getFms() const;
+
+    void setFms(const std::array<int, 3> &fms);
+    friend std::ostream &operator<<(std::ostream &os, const EnigmaConfiguration &enigmaConfiguration);
+
+    EnigmaConfiguration();
+
+public:
+    EnigmaConfiguration(std::array<int, 3> fms, const pos& startpos);
+};
 
 class Enigma : public AlgorithmDecryption {
     std::array<std::array<int, 26>, 5> rotoren {}; // p0 - p4
@@ -56,13 +84,13 @@ public:
      * @param input : input string (sub-string of the ciphertext)
      * @return : graph edges.
      */
-    _edges makeGraph(const std::string &input);
+    void makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>>& graph);
 
     /**
      * 26x26 changing graph, only the symmetric edges.
      * @return : edges of the (gamma) graph.
      */
-    static std::set<gammaEdge> gammaGraph();
+    static gammaEdges gammaGraph();
 
     /**
      *
@@ -70,20 +98,21 @@ public:
      * @param graph : crib graph
      * @return : changed gamma graph edges.
      */
-    std::set<gammaEdge> makeAllGammaGraphs(const std::set<gammaEdge>& symmetricGammaGraph, const _edges& graph, const std::vector<std::array<int, 3>>& vectorcombs, std::array<int, 3> start_pos);
+    std::vector<EnigmaConfiguration>
+    makeAllGammaGraphs(const gammaEdges & symmetricGammaGraph, const _edges& graph, const std::vector<std::array<int, 3>>& vectorcombs, std::array<int, 3> start_pos);
 
-    std::set<gammaEdge> makeGammaGraph(const std::set<gammaEdge>& symmetricGammaGraph, const _edges& graph, const std::array<int, 3>& fms, pos& start_pos);
+    bool makeGammaGraph(const gammaEdges & symmetricGammaGraph, const _edges& graph, const std::array<int, 3>& fms, pos& start_pos);
 
     static void tickRotors(std::array<int, 3> &stand_fast_middle_slow, int ticks);
 
     static std::array<int, 3> RotorPosPlusK(const std::array<int, 3> &start_pos, int K);
 
     int
-    sendThrough(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
+    sendThrough(int char_code_in, const std::array<int, 3> &fast_middle_slow,
                 const pos &start_stand_fast_mid_slow,
                 const std::array<int, 26> &plugBoard);
 
-    int sendThroughRotors(const int char_code_in, const std::array<int, 3> &fast_middle_slow,
+    int sendThroughRotors(int char_code_in, const std::array<int, 3> &fast_middle_slow,
                           const pos &stand_fast_middle_slow);
 };
 
