@@ -98,21 +98,15 @@ std::string Enigma::Solve() {
     std::vector<std::array<int,3>> vectorcombs{};
     std::string sub_string {};
     GenArrangement(5, 3, 0, 0, 0, vectorcombs);
-    std::map<size_t, std::pair<char, char>> edges;
+    _edges edges;
     std::set<gammaEdge> gammaEdges = gammaGraph();
 
     for (size_t c = 0; c < end_index; c++) { // crib dragging loop
         sub_string = input.substr(c, criblength);
         if (!checkLetterCorrespondence(sub_string)) { // if letter enciphered as itself
-
             // now we have to find a suitable k (see course notes).
             edges = makeGraph(sub_string);
-            for (const std::array<int, 3>& fms:vectorcombs) { // all possible rotor positions
-                do {
-
-                    tickRotors(start_pos);
-                } while (start_pos.at(2) != 0 and start_pos.at(1) != 0 and start_pos.at(0) != 0); // loop over all possible rotor configurations
-            }
+            std::set<gammaEdge> cur_gammaEdges = makeAllGammaGraphs(gammaEdges, edges, vectorcombs, start_pos);
 
         }
 
@@ -183,6 +177,17 @@ std::set<gammaEdge> Enigma::gammaGraph() {
     return gammaSymmetricEdges;
 }
 
-std::set<gammaEdge> Enigma::changeGammaGraph(std::set<gammaEdge>& symmetricGammaGraph, const edges& graph) {
+std::set<gammaEdge> Enigma::makeAllGammaGraphs(const std::set<gammaEdge> &symmetricGammaGraph, const _edges &graph, const std::vector<std::array<int, 3>>& vectorcombs, pos start_pos) {
+    // per rotorstand, heel het circuit opbouwen.
+
+    for (const std::array<int, 3> &fms: vectorcombs) { // all possible rotor positions
+        do {
+            std::set<gammaEdge> changedGammaGraph = makeGammaGraph(symmetricGammaGraph, graph, fms, start_pos);
+
+            tickRotors(start_pos);
+        } while (start_pos.at(2) != 0 and start_pos.at(1) != 0 and
+                 start_pos.at(0) != 0); // loop over all possible rotor configurations
+    }
+
     return std::set<gammaEdge>();
 }
