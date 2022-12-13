@@ -4,44 +4,57 @@
 
 #ifndef CODETHEORIE_ENIGMA_H
 #define CODETHEORIE_ENIGMA_H
+#include <thread>
+#include <mutex>
 
 #include "AlgorithmDecryption.h"
 #include <algorithm>
 typedef std::map<size_t, std::pair<char, char>> _edges;
-typedef std::pair<char,char> state;
-typedef std::map<state, std::vector<state>> gammaEdges;
+typedef std::array<int, 3> pos;
 
-typedef std::array<int,3> pos;
-
-typedef std::array<std::array<bool, 26>,26> TruthGraph;
-
-class EnigmaConfiguration{
-    int cribIndex = -1;
-    pos startPos;
-    std::array<int,3> fms;
+class Vertex : public std::pair<char, char> {
 public:
-    int getCribIndex() const;
+    Vertex(char c1, char c2) {
+        this->first = c1;
+        this->second = c2;
+    };
+    Vertex() = default;
+};
 
+class VertexMatrix : public std::array<Vertex, 676> {
+public:
+    VertexMatrix() :  std::array<Vertex, 676>() {
+        for (int i1 = 0 ; i1 < 26; i1++) {
+            for (int i2 = 0; i2 < 26; i2++) {
+                this->at(26*i1 + i2) = Vertex((char) (i1+ASCII_A),(char) (i2+ASCII_A));
+            }
+        }
+    }
+    const Vertex * getVertex(char c1,char c2) const{
+        return &(*this)[(c1-ASCII_A)*26 + (c2-ASCII_A)];
+    };
+};
+
+
+typedef std::map<const Vertex*, std::vector<const Vertex*>> gammaEdges;
+static const VertexMatrix VertexMatrix {};
+
+class EnigmaConfiguration {
+    int cribIndex = -1;
+    pos startPos{};
+    std::array<int, 3> fms{};
+public:
     void setCribIndex(int cribIndex);
-
-    const pos &getStartPos() const;
-
-    void setStartPos(const pos &startPos);
-
-    const std::array<int, 3> &getFms() const;
-
-    void setFms(const std::array<int, 3> &fms);
     friend std::ostream &operator<<(std::ostream &os, const EnigmaConfiguration &enigmaConfiguration);
-
     EnigmaConfiguration();
 
 public:
-    EnigmaConfiguration(std::array<int, 3> fms, const pos& startpos);
+    EnigmaConfiguration(std::array<int, 3> fms, const pos &startpos);
 };
 
 class Enigma : public AlgorithmDecryption {
-    std::array<std::array<int, 26>, 5> rotoren {}; // p0 - p4
-    std::array<std::array<int, 26>, 5> inverse_rotoren {}; // p0^(-1) - p4^(-1)
+    std::array<std::array<int, 26>, 5> rotoren{}; // p0 - p4
+    std::array<std::array<int, 26>, 5> inverse_rotoren{}; // p0^(-1) - p4^(-1)
 
     std::string crib; // known (/guessed) plaintext
     std::array<int, 26> reflector{}; // r
@@ -53,13 +66,17 @@ public:
 
     static std::array<int, 26> PermutationStringToArray(const std::string &input);
 
-    std::string
-    sendThrough(const std::string &input, const std::array<int, 3>& fast_middle_slow, const std::array<int, 3>& start_stand,
-                const std::array<int, 26> &plugBoard);
+    [[maybe_unused]] std::string
+    sendThrough(const std::string &input, const std::array<int, 3> &fast_middle_slow,
+                const std::array<int, 3> &start_stand,
+                const std::array<int, 26> &plugBoard) const;
 
     std::string Solve() override;
-    static void tickRotors(std::array<int, 3>& stand_fast_middle_slow);
-    static char alphabetIndex(int index);
+
+    static void tickRotors(std::array<int, 3> &stand_fast_middle_slow);
+
+    static char alphabetIndex(int index) ;
+
     /**
      *
      * source: https://stackoverflow.com/questions/54970636/how-can-i-make-an-algorithm-in-c-for-finding-variations-of-a-set-without-repet , answer by MBo
@@ -70,21 +87,21 @@ public:
      * @param arran
      * @param comb
      */
-    void GenArrangement(int n, int k, int idx, int used, int arran, std::vector<std::array<int,3>> &comb);
+    static void GenArrangement(int n, int k, int idx, int used, int arran, std::vector<std::array<int, 3>> &comb);
 
     /**
      * Function to check if a letter is enciphered as itself (used when performing crib dragging)
      * @param input : input string (sub-string of the ciphertext)
      * @return : false if a letter is enciphered as itself, true otherwise.
      */
-    bool checkLetterCorrespondence(const std::string &input);
+    bool checkLetterCorrespondence(const std::string &input) const;
 
     /**
      * Function to make the crib graph.
      * @param input : input string (sub-string of the ciphertext)
      * @return : graph edges.
      */
-    void makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>>& graph);
+    void makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>> &graph) const;
 
     /**
      * 26x26 changing graph, only the symmetric edges.
@@ -99,9 +116,11 @@ public:
      * @return : changed gamma graph edges.
      */
     std::vector<EnigmaConfiguration>
-    makeAllGammaGraphs(const gammaEdges & symmetricGammaGraph, const _edges& graph, const std::vector<std::array<int, 3>>& vectorcombs, std::array<int, 3> start_pos);
+    makeAllGammaGraphs(const gammaEdges &symmetricGammaGraph, const _edges &graph,
+                       const std::vector<std::array<int, 3>> &vectorcombs, std::array<int, 3> start_pos) const;
 
-    bool makeGammaGraph(const gammaEdges & symmetricGammaGraph, const _edges& graph, const std::array<int, 3>& fms, pos& start_pos);
+    bool makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges &graph, const std::array<int, 3> &fms,
+                        pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex) const;
 
     static void tickRotors(std::array<int, 3> &stand_fast_middle_slow, int ticks);
 
@@ -110,10 +129,10 @@ public:
     int
     sendThrough(int char_code_in, const std::array<int, 3> &fast_middle_slow,
                 const pos &start_stand_fast_mid_slow,
-                const std::array<int, 26> &plugBoard);
+                const std::array<int, 26> &plugBoard) const;
 
     int sendThroughRotors(int char_code_in, const std::array<int, 3> &fast_middle_slow,
-                          const pos &stand_fast_middle_slow);
+                          const pos &stand_fast_middle_slow) const;
 };
 
 

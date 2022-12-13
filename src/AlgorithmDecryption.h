@@ -196,6 +196,7 @@ const std::map<std::string, std::vector<double>> LETTER_FREQUENCIES = {{"EN", LE
                                                                        {"SP", LETTER_FREQUENCY_SP},
                                                                        {"GE", LETTER_FREQUENCY_GE}};
 const int ASCII_A = {'A'};
+const int ASCII_Z = {'Z'};
 
 /**
  * AlgorithmDecryption: Base class for all the decryption classes

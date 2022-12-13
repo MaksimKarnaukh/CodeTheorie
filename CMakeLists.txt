@@ -1,12 +1,19 @@
-cmake_minimum_required(VERSION 3.17)
 project(CodeTheorie)
+cmake_minimum_required(VERSION 3.17)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
-
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(CodeTheorie src/main.cpp src/ViginerePlus.cpp src/ViginerePlus.h src/Playfair.cpp src/Playfair.h src/Adfgvx.cpp src/Adfgvx.h src/Enigma.cpp src/Enigma.h src/AlgorithmDecryption.cpp src/AlgorithmDecryption.h)
+
+find_package(Threads REQUIRED)
+if(THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(CodeTheorie PUBLIC "-pthread")
+endif()
+if(CMAKE_THREAD_LIBS_INIT)
+    target_link_libraries(CodeTheorie "${CMAKE_THREAD_LIBS_INIT}")
+endif()
