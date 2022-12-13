@@ -239,22 +239,22 @@ std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &sy
     std::mutex valids_mutex {};
 
 
-    auto start = std::chrono::high_resolution_clock::now();
-    long long diff;
+//    auto start = std::chrono::high_resolution_clock::now();
+//    long long diff;
     unsigned int counter {};
 
     for (const std::array<int, 3> &fms: vectorcombs) { // all possible rotor positions
         do {
-            counter++;
-            if (counter % 100000 == 0) {
-//                time diff since start
-                diff = std::chrono::duration_cast<std::chrono::seconds>(
-                        std::chrono::high_resolution_clock::now() - start).count();
-//                Output counter, time and interations per second
-                std::cout << "\t|Counter: " << std::to_string(counter) << "\t |Time (s): "
-                          << diff
-                          << "\t|Iterations/Second: " << counter / (diff + 1) << std::endl;
-            }
+//            counter++;
+//            if (counter % 100000 == 0) {
+////                time diff since start
+//                diff = std::chrono::duration_cast<std::chrono::seconds>(
+//                        std::chrono::high_resolution_clock::now() - start).count();
+////                Output counter, time and interations per second
+//                std::cout << "\t|Counter: " << std::to_string(counter) << "\t |Time (s): "
+//                          << diff
+//                          << "\t|Iterations/Second: " << counter / (diff + 1) << std::endl;
+//            }
             threads.emplace_back(
                     &Enigma::makeGammaGraph, this, std::cref(symmetricGammaGraph), std::cref(graph),
                             std::cref(fms), start_pos, std::ref(valid_configurations),
