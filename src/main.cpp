@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
         algorithmDecryption = std::make_shared<Adfgvx>(Adfgvx("../data/03-OPGAVE-adfgvx.txt"));
     }
     else if (encr_algo == "EN") {
-        algorithmDecryption = std::make_shared<Enigma>(Enigma("../data/04-OPGAVE-enigma.txt"));
-
+//        algorithmDecryption = std::make_shared<Enigma>(Enigma("../data/04-OPGAVE-enigma.txt"));
+        algorithmDecryption = std::make_shared<Enigma>(Enigma("../data/EngimaTest.txt"));
     }
     std::string out = algorithmDecryption->Solve();
     std::cout << out << std::endl;

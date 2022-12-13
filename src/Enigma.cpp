@@ -121,6 +121,10 @@ pos Enigma::RotorPosPlusK(const std::array<int, 3> &start_pos, int K) {
 
 std::string Enigma::Solve() {
     std::string input = this->cipherText;
+
+//    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
+//    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
+
     std::fstream ofs;
     auto start = std::chrono::high_resolution_clock::now();
     long long diff;
@@ -139,7 +143,7 @@ std::string Enigma::Solve() {
 
     if (ofs.is_open()) {
         ofs << "{" << std::endl;
-        for (size_t c = 0; c < end_index; c++) { // crib dragging loop
+        for (size_t c = 0; c <= end_index; c++) { // crib dragging loop
 //                time diff since start
             diff = std::chrono::duration_cast<std::chrono::minutes>(
                     std::chrono::high_resolution_clock::now() - start).count();
@@ -201,7 +205,7 @@ void Enigma::makeGraph(const std::string &input, std::map<size_t, std::pair<char
     for (size_t char_pos = 0, inputLength = input.length(); char_pos < inputLength; char_pos++) {
         char1 = input[char_pos];
         char2 = this->crib[char_pos];
-        graph[char_pos + 1] = std::make_pair(char1, char2);
+        graph[char_pos + 1] = std::make_pair(char2, char1);
     }
 }
 
@@ -233,9 +237,9 @@ std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &sy
     // per rotorstand, heel het circuit opbouwen.
     std::vector<EnigmaConfiguration> valid_configurations{};
     EnigmaConfiguration tempEnigmaConfiguration;
-    std::vector<std::thread> threads;
+//    std::vector<std::thread> threads;
     std::vector<std::future<bool>> futures;
-    int nr_threads = 2000;
+//    int nr_threads = 2000;
     std::mutex valids_mutex {};
 
 
@@ -255,27 +259,31 @@ std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &sy
 //                          << diff
 //                          << "\t|Iterations/Second: " << counter / (diff + 1) << std::endl;
 //            }
-            threads.emplace_back(
-                    &Enigma::makeGammaGraph, this, std::cref(symmetricGammaGraph), std::cref(graph),
-                            std::cref(fms), start_pos, std::ref(valid_configurations),
-                            std::ref(valids_mutex));
+//            threads.emplace_back(
+//                    &Enigma::makeGammaGraph, this, std::cref(symmetricGammaGraph), std::cref(graph),
+//                            std::cref(fms), start_pos, std::ref(valid_configurations),
+//                            std::ref(valids_mutex));
+
+            this->makeGammaGraph(symmetricGammaGraph, graph,
+                                 {0,1,2}, {0,1,2}, valid_configurations,
+                            valids_mutex);
 
 
-            if (counter%nr_threads==0){
-                for (auto& thread : threads)
-                {
-                    thread.join();
-                }
-                threads.clear();
-            }
+//            if (counter%nr_threads==0){
+//                for (auto& thread : threads)
+//                {
+//                    thread.join();
+//                }
+//                threads.clear();
+//            }
             tickRotors(start_pos);
         } while (start_pos.at(2) != 0 or start_pos.at(1) != 0 or
                  start_pos.at(0) != 0); // loop over all possible rotor configurations
     }
-    for (auto& thread : threads)
-    {
-        thread.join();
-    }
+//    for (auto& thread : threads)
+//    {
+//        thread.join();
+//    }
     return valid_configurations;
 }
 
@@ -320,10 +328,15 @@ bool Enigma::makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges 
     filled_cols = {maxVertex->second};
     filled_rows = {maxVertex->first};
 
+    std::set<const Vertex*> done{maxVertex};
+
     while (!todo.empty()) {
         vertex1 = todo.top();
         todo.pop();
         for (const Vertex* vertex: changedGammaGraph[vertex1]) {
+            if (done.find(vertex) != done.end()) {
+                continue;
+            }
             if (filled_rows.find(vertex->first) != filled_rows.end() ||
                 filled_cols.find(vertex->second) != filled_cols.end()) {
                 return false;
@@ -331,6 +344,7 @@ bool Enigma::makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges 
             filled_rows.insert(vertex->first);
             filled_cols.insert(vertex->second);
             todo.push(vertex);
+            done.insert(vertex);
         }
     }
     bool returnval = filled_rows.size() == 26 && filled_cols.size() == 26;
@@ -339,11 +353,11 @@ bool Enigma::makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges 
         std::cout << "%%%%%%%%%%%%%SUCCESSFULL%%%%%%%%%%%%%" << std::endl;
         std::cout << temp << std::endl;
         std::cout << "%%%%%%%%%%%%%SUCCESSFULL%%%%%%%%%%%%%" << std::endl;
-        while (! valids_mutex.try_lock()){
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }
+//        while (! valids_mutex.try_lock()){
+//            std::this_thread::sleep_for(std::chrono::seconds(2));
+//        }
         validConfigurations.emplace_back(temp);
-        valids_mutex.unlock();
+//        valids_mutex.unlock();
     }
     return returnval;
 
