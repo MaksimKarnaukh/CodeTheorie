@@ -122,8 +122,8 @@ pos Enigma::RotorPosPlusK(const std::array<int, 3> &start_pos, int K) {
 std::string Enigma::Solve() {
     std::string input = this->cipherText;
 
-//    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
-//    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
+    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
+    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
 
     std::fstream ofs;
     auto start = std::chrono::high_resolution_clock::now();
@@ -154,8 +154,8 @@ std::string Enigma::Solve() {
             if (!checkLetterCorrespondence(sub_string)) { // if letter enciphered as itself
                 std::cout << "Crib match succeed on starting pos: " << c << "/" << end_index << std::endl;
                 // now we have to find a suitable k (see course notes).
-                makeGraph(sub_string, edges);
-                valid_configurations = makeAllGammaGraphs(_gammaEdges, edges, vectorcombs, start_pos);
+                char charWithMostEdges = makeGraph(sub_string, edges);
+                valid_configurations = makeAllGammaGraphs(_gammaEdges, edges, vectorcombs, start_pos, charWithMostEdges);
                 for (auto &config: valid_configurations) {
                     config.setCribIndex((int)c);
                     ofs << config;
@@ -198,15 +198,21 @@ bool Enigma::checkLetterCorrespondence(const std::string &input) const {
     return false;
 }
 
-void Enigma::makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>>& graph) const {
+char Enigma::makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>>& graph) const {
     graph = {};
     char char1;
     char char2;
+    std::map<char, int> charCounts{};
     for (size_t char_pos = 0, inputLength = input.length(); char_pos < inputLength; char_pos++) {
         char1 = input[char_pos];
         char2 = this->crib[char_pos];
         graph[char_pos + 1] = std::make_pair(char2, char1);
+        charCounts[char2] += 1;
+        charCounts[char1] += 1;
     }
+    auto it = std::max_element(charCounts.begin(), charCounts.end(),
+                               [](const auto& a, const auto& b) { return a.second < b.second; });
+    return it->first;
 }
 
 gammaEdges Enigma::gammaGraph() {
@@ -232,7 +238,7 @@ gammaEdges Enigma::gammaGraph() {
 
 std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &symmetricGammaGraph, const _edges &graph,
                                                             const std::vector<std::array<int, 3>> &vectorcombs,
-                                                            pos start_pos)  const{
+                                                            pos start_pos, char charWithMostEdges)  const{
 
     // per rotorstand, heel het circuit opbouwen.
     std::vector<EnigmaConfiguration> valid_configurations{};
@@ -266,7 +272,7 @@ std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &sy
 
             this->makeGammaGraph(symmetricGammaGraph, graph,
                                  {0,1,2}, {0,1,2}, valid_configurations,
-                            valids_mutex);
+                            valids_mutex, charWithMostEdges);
 
 
 //            if (counter%nr_threads==0){
@@ -288,7 +294,7 @@ std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &sy
 }
 
 bool Enigma::makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges &graph, const std::array<int, 3> &fms,
-                            pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex) const {
+                            pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex, char charWithMostEdges) const {
     pos rotor_plus_k_pos{};
     std::set<int> enabled_columns{}, enabled_rows{};
 

@@ -99,9 +99,9 @@ public:
     /**
      * Function to make the crib graph.
      * @param input : input string (sub-string of the ciphertext)
-     * @return : graph edges.
+     * @return : vertice with most edges.
      */
-    void makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>> &graph) const;
+    char makeGraph(const std::string &input, std::map<size_t, std::pair<char, char>> &graph) const;
 
     /**
      * 26x26 changing graph, only the symmetric edges.
@@ -117,10 +117,10 @@ public:
      */
     std::vector<EnigmaConfiguration>
     makeAllGammaGraphs(const gammaEdges &symmetricGammaGraph, const _edges &graph,
-                       const std::vector<std::array<int, 3>> &vectorcombs, std::array<int, 3> start_pos) const;
+                       const std::vector<std::array<int, 3>> &vectorcombs, std::array<int, 3> start_pos, char charWithMostEdges) const;
 
     bool makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges &graph, const std::array<int, 3> &fms,
-                        pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex) const;
+                        pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex, char charWithMostEdges) const;
 
     static void tickRotors(std::array<int, 3> &stand_fast_middle_slow, int ticks);
 
