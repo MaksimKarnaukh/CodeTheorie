@@ -17,3 +17,4 @@ endif()
 if(CMAKE_THREAD_LIBS_INIT)
     target_link_libraries(CodeTheorie "${CMAKE_THREAD_LIBS_INIT}")
 endif()
+

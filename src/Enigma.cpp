@@ -122,21 +122,20 @@ pos Enigma::RotorPosPlusK(const std::array<int, 3> &start_pos, int K) {
 std::string Enigma::Solve() {
     std::string input = this->cipherText;
 
-    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
-    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
+//    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
+//    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
 
     std::fstream ofs;
     auto start = std::chrono::high_resolution_clock::now();
     long long diff;
     ofs.open("EnigmaValidConfigurations.txt", std::ofstream::out | std::ofstream::trunc);
     // Turing-Bombe
-    pos start_pos{0, 0, 0};
     size_t inputlength = input.length(), criblength = crib.length(), end_index = inputlength - criblength;
     std::vector<std::array<int, 3>> vectorcombs{};
     std::string sub_string{};
     GenArrangement(5, 3, 0, 0, 0, vectorcombs);
     _edges edges;
-    gammaEdges _gammaEdges = gammaGraph();
+    VertexMatrix vertexMatrix = gammaGraph();
     std::vector<EnigmaConfiguration> valid_configurations{};
     std::cout << std::fixed;
     std::cout << std::setprecision(2);
@@ -155,7 +154,7 @@ std::string Enigma::Solve() {
                 std::cout << "Crib match succeed on starting pos: " << c << "/" << end_index << std::endl;
                 // now we have to find a suitable k (see course notes).
                 char charWithMostEdges = makeGraph(sub_string, edges);
-                valid_configurations = makeAllGammaGraphs(_gammaEdges, edges, vectorcombs, start_pos, charWithMostEdges);
+                valid_configurations = makeAllGammaGraphs(edges, vectorcombs, charWithMostEdges);
                 for (auto &config: valid_configurations) {
                     config.setCribIndex((int)c);
                     ofs << config;
@@ -215,9 +214,9 @@ char Enigma::makeGraph(const std::string &input, std::map<size_t, std::pair<char
     return it->first;
 }
 
-gammaEdges Enigma::gammaGraph() {
+VertexMatrix Enigma::gammaGraph() {
 
-    gammaEdges gammaSymmetricEdges{};
+    VertexMatrix vertexMatrix{};
     const Vertex* vertex1{},* vertex2{};
     char c1, c2;
 //    A-Y
@@ -225,148 +224,177 @@ gammaEdges Enigma::gammaGraph() {
         for (int j = i + 1; j < 26; j++) {
             c1 = char(ASCII_A + i);
             c2 = char(ASCII_A + j);
-            vertex1 = VertexMatrix.getVertex(c1, c2);
-            vertex2 = VertexMatrix.getVertex(c2, c1);
-            gammaSymmetricEdges[vertex1].emplace_back(vertex2);
-            gammaSymmetricEdges[vertex2].emplace_back(vertex1);
-
+            vertexMatrix.addEdge(c1,c2, c2, c1);
         }
     }
 
-    return gammaSymmetricEdges;
+    return vertexMatrix;
 }
 
-std::vector<EnigmaConfiguration> Enigma::makeAllGammaGraphs(const gammaEdges &symmetricGammaGraph, const _edges &graph,
-                                                            const std::vector<std::array<int, 3>> &vectorcombs,
-                                                            pos start_pos, char charWithMostEdges)  const{
+std::vector<EnigmaConfiguration>
+Enigma::makeAllGammaGraphs(const _edges &graph, const std::vector<std::array<int, 3>> &vectorcombs,
+                           char charWithMostEdges) const{
+    pos start_pos{0, 0, 0};
 
     // per rotorstand, heel het circuit opbouwen.
     std::vector<EnigmaConfiguration> valid_configurations{};
     EnigmaConfiguration tempEnigmaConfiguration;
-//    std::vector<std::thread> threads;
-    std::vector<std::future<bool>> futures;
-//    int nr_threads = 2000;
+    std::vector<std::thread> threads {};
+    int nr_threads = 10000;
     std::mutex valids_mutex {};
 
 
-//    auto start = std::chrono::high_resolution_clock::now();
-//    long long diff;
+    auto start = std::chrono::high_resolution_clock::now();
+    long long diff;
     unsigned int counter {};
 
     for (const std::array<int, 3> &fms: vectorcombs) { // all possible rotor positions
         do {
-//            counter++;
-//            if (counter % 100000 == 0) {
-////                time diff since start
-//                diff = std::chrono::duration_cast<std::chrono::seconds>(
-//                        std::chrono::high_resolution_clock::now() - start).count();
-////                Output counter, time and interations per second
+            counter++;
+            if (counter % 1000 == 0) {
+//                time diff since start
+                diff = std::chrono::duration_cast<std::chrono::seconds>(
+                        std::chrono::high_resolution_clock::now() - start).count();
+//                Output counter, time and interations per second
 //                std::cout << "\t|Counter: " << std::to_string(counter) << "\t |Time (s): "
 //                          << diff
 //                          << "\t|Iterations/Second: " << counter / (diff + 1) << std::endl;
-//            }
+            }
 //            threads.emplace_back(
-//                    &Enigma::makeGammaGraph, this, std::cref(symmetricGammaGraph), std::cref(graph),
+//                    &Enigma::makeGammaGraph, this, std::cref(graph),
 //                            std::cref(fms), start_pos, std::ref(valid_configurations),
-//                            std::ref(valids_mutex));
+//                            std::ref(valids_mutex), charWithMostEdges);
+            this->makeGammaGraph( graph,
+                                  {2,3,1}, {9,4,5}, valid_configurations,
+                                  valids_mutex, charWithMostEdges);
+//            this->makeGammaGraph( graph,
+//                                  fms,start_pos, valid_configurations,
+//                                 valids_mutex, charWithMostEdges);
+//
 
-            this->makeGammaGraph(symmetricGammaGraph, graph,
-                                 {0,1,2}, {0,1,2}, valid_configurations,
-                            valids_mutex, charWithMostEdges);
-
-
-//            if (counter%nr_threads==0){
-//                for (auto& thread : threads)
-//                {
-//                    thread.join();
-//                }
-//                threads.clear();
-//            }
+            if (counter%nr_threads==0){
+                for (auto& thread : threads)
+                {
+                    thread.join();
+                }
+                threads.clear();
+            }
             tickRotors(start_pos);
         } while (start_pos.at(2) != 0 or start_pos.at(1) != 0 or
                  start_pos.at(0) != 0); // loop over all possible rotor configurations
     }
-//    for (auto& thread : threads)
-//    {
-//        thread.join();
-//    }
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
     return valid_configurations;
 }
 
-bool Enigma::makeGammaGraph(const gammaEdges &symmetricGammaGraph, const _edges &graph, const std::array<int, 3> &fms,
-                            pos start_pos, std::vector<EnigmaConfiguration>& validConfigurations, std::mutex& valids_mutex, char charWithMostEdges) const {
+bool Enigma::makeGammaGraph(const _edges &graph, const std::array<int, 3> &fms, pos start_pos,
+                            std::vector<EnigmaConfiguration> &validConfigurations, std::mutex &valids_mutex,
+                            char charWithMostEdges) const {
+
     pos rotor_plus_k_pos{};
     std::set<int> enabled_columns{}, enabled_rows{};
-
-
-    gammaEdges changedGammaGraph = symmetricGammaGraph;
+    VertexMatrix adjecencyMatrix = VertexMatrix();
     char c1, c2;
-    const Vertex* vertex1,* vertex2,* maxVertex{};
-    size_t maxSize{0}, vectorSize;
+    int nr_r;
     std::set<char> filled_cols{}, filled_rows{};
-    std::stack<const Vertex*> todo{};
     size_t rel_pos;
     char enigmaInput , enigmaOutput;
-
     for (const auto &it: graph) {
-        rel_pos = it.first;
+        rel_pos = it.first-1;
         c1 = it.second.first;
         c2 = it.second.second;
         rotor_plus_k_pos = Enigma::RotorPosPlusK(start_pos, rel_pos);
         for (int c = 0; c < 26; c++) {
             enigmaInput = (char) (ASCII_A + c);
             enigmaOutput = (char)(ASCII_A + sendThroughRotors(c, fms, rotor_plus_k_pos));
-            vertex1 = VertexMatrix.getVertex(c1, enigmaInput);
-            vertex2 = VertexMatrix.getVertex(c2, enigmaOutput);
-            changedGammaGraph[vertex1].push_back(vertex2);
-            changedGammaGraph[vertex2].push_back(vertex1);
+            adjecencyMatrix.addEdge(c1, enigmaInput, c2, enigmaOutput);
         }
     }
 
-    for (const auto &[vertex, edges]: changedGammaGraph) {
-        vectorSize = edges.size();
-        if (maxSize < vectorSize) {
-            maxVertex = vertex;
-            maxSize = vectorSize;
-        }
-    }
-    todo.push(maxVertex);
-    filled_cols = {maxVertex->second};
-    filled_rows = {maxVertex->first};
+    adjecencyMatrix.getVertex(charWithMostEdges,'A')->powerVertex();
+    nr_r = adjecencyMatrix.getNrPoweredOnRow(charWithMostEdges);
 
-    std::set<const Vertex*> done{maxVertex};
+    if (nr_r == 26) return false;
+    else {
+        adjecencyMatrix.getVertex(charWithMostEdges,'A')->powerOffVertex();
+        EnigmaConfiguration temp =EnigmaConfiguration(fms, start_pos);
+        std::string plugBoard = std::string(26,' ');
+        std::array<std::vector<char>,26> possibilitties;
+        bool done = false;
+        for (char c = ASCII_A; c <= ASCII_Z; c++) {
+            for (char c2 = ASCII_A; c2 <= ASCII_Z; c2++) {
+                adjecencyMatrix.getVertex(c, c2)->powerVertex();
+    //            nr_c = adjecencyMatrix.getNrPoweredOnCol(c);
+                if (adjecencyMatrix.getNrPoweredOnRow(c) == 25){
+                    plugBoard[c-ASCII_A] = adjecencyMatrix.getTurnedOffInRow(c);
+                    possibilitties[c-ASCII_A].emplace_back(c2);
+                    break;
+                }
+                else if (adjecencyMatrix.getNrPoweredOnCol(c) == 25){
+                    plugBoard[c-ASCII_A] = adjecencyMatrix.getTurnedOffInCol(c);
+                    possibilitties[c-ASCII_A].emplace_back(c2);
+                    break;
+                }
 
-    while (!todo.empty()) {
-        vertex1 = todo.top();
-        todo.pop();
-        for (const Vertex* vertex: changedGammaGraph[vertex1]) {
-            if (done.find(vertex) != done.end()) {
-                continue;
+                adjecencyMatrix.getVertex(c, c2)->powerOffVertex();
+
             }
-            if (filled_rows.find(vertex->first) != filled_rows.end() ||
-                filled_cols.find(vertex->second) != filled_cols.end()) {
-                return false;
-            }
-            filled_rows.insert(vertex->first);
-            filled_cols.insert(vertex->second);
-            todo.push(vertex);
-            done.insert(vertex);
         }
-    }
-    bool returnval = filled_rows.size() == 26 && filled_cols.size() == 26;
-    if (returnval){
-        EnigmaConfiguration temp = EnigmaConfiguration(fms, start_pos);
-        std::cout << "%%%%%%%%%%%%%SUCCESSFULL%%%%%%%%%%%%%" << std::endl;
-        std::cout << temp << std::endl;
-        std::cout << "%%%%%%%%%%%%%SUCCESSFULL%%%%%%%%%%%%%" << std::endl;
-//        while (! valids_mutex.try_lock()){
-//            std::this_thread::sleep_for(std::chrono::seconds(2));
+//        while (!done){
+//            done = true;
+//            for (int i = 0; i < 26; i++){
+//                if (possibilitties[i].size() == 1){
+//                    plugBoard[i] = possibilitties[i][0];
+//                    done = false;
+//                    for (int i2 = 0; i2 < 26; i2++) {
+//                        possibilitties[i2].erase(std::remove(possibilitties[i2].begin(), possibilitties[i2].end(),plugBoard[i] ), possibilitties[i2].end());
+//
+//                    }
+//                    }
+//            }
 //        }
-        validConfigurations.emplace_back(temp);
-//        valids_mutex.unlock();
-    }
-    return returnval;
 
+        temp.setPlugBoard(plugBoard);
+
+        std::cout << "%%%%%%%%%%%%%SUCCESSFUL%%%%%%%%%%%%%" << std::endl;
+        std::cout << temp;
+        std::cout << "%%%%%%%%%%%%%SUCCESSFUL%%%%%%%%%%%%%" << std::endl;
+        while (! valids_mutex.try_lock()){
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+        std::lock_guard<std::mutex> guard(valids_mutex);
+        validConfigurations.emplace_back(temp);
+    }
+
+//    while (!todo.empty()) {
+//        vertex1 = todo.top();
+//        todo.pop();
+//        if (! vertex1->isPowered()){
+//            vertex1->powerVertex();
+//        }
+////        for (const Vertex* vertex: changedGammaGraph[vertex1]) {
+////            if (done.find(vertex) != done.end()) {
+////                continue;
+////            }
+////            if (filled_rows.find(vertex->first) != filled_rows.end() ||
+////                filled_cols.find(vertex->second) != filled_cols.end()) {
+////                contradiction = true;
+////            }
+////            filled_rows.insert(vertex->first);
+////            filled_cols.insert(vertex->second);
+////            todo.push(vertex);
+////            done.insert(vertex);
+////        }
+//    }
+
+
+
+
+
+    return false;
 }
 
 
@@ -384,33 +412,27 @@ void EnigmaConfiguration::setCribIndex(int cribIndex) {
 
 
 std::ostream &operator<<(std::ostream &os, const EnigmaConfiguration &enigmaConfiguration) {
-    os << '{' << std::endl;
-    os << "\tfms:" << std::endl;
-    os << "\t{" << std::endl;
-    os << "\t\t{";
+    os << '{' << std::endl << "\tfms: {{";
     for (int i: enigmaConfiguration.fms) {
         os << i << ',';
     }
-    os << '}' << std::endl;
+    os << "}}" << std::endl;
 
-    os << "\trotorStartPos:" << std::endl;
-    os << "\t{" << std::endl;
-    os << "\t\t{";
+    os << "\trotorStartPos: {";
     for (int i: enigmaConfiguration.startPos) {
         os << i << ',';
     }
-    os << "\t}" << std::endl;
+    os << "}" << std::endl;
 
-    os << "\tcribIndex:" << std::endl;
-    os << "\t{" << std::endl;
-    os << "\t\t" << enigmaConfiguration.cribIndex;
-
-    os << "\t}" << std::endl;
-
-
+    os << "\tcribIndex: " << "{" << enigmaConfiguration.cribIndex << "}" << std::endl;
+    os << "\tPlugBoard: " << "{" << enigmaConfiguration.plugboard << "}" << std::endl;
     os << '}' << std::endl;
 
     return os;
+}
+
+void EnigmaConfiguration::setPlugBoard(std::string plugboard) {
+    this->plugboard = plugboard;
 }
 
 EnigmaConfiguration::EnigmaConfiguration() =default;
