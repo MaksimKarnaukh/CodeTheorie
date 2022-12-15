@@ -36,7 +36,7 @@ public:
     VertexMatrix();
 
 
-    [[maybe_unused]] const Vertex *getVertex(char c1, char c2) const {
+    const Vertex *getVertex(char c1, char c2) const {
         return &(*this)[(c1 - ASCII_A) * 26 + (c2 - ASCII_A)];
     };
 

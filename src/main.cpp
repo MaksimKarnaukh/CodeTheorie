@@ -6,8 +6,6 @@
 #include "ViginerePlus.h"
 #include <chrono>
 #include <memory>
-#include <complex>
-#include <algorithm>
 
 using namespace std;
 using namespace std::chrono;
