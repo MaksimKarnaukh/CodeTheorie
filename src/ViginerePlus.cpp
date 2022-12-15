@@ -19,6 +19,7 @@ std::string ViginerePlus::Solve() {
     std::numeric_limits<double>::max();
     std::pair<std::string, double> temp{};
     std::map<double, std::map<std::string, SingleColumnTransposition>> results{};
+//    todo max length
     int min_keylength_column_trans = 1, max_keylength_column_trans = 10, nr_col_transpositions_to_keep = 1;
 
 //    Get a vector with most likely solutions of the column transpostion

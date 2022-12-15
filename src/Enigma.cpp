@@ -22,7 +22,7 @@ Enigma::Enigma(const std::string &filename) : AlgorithmDecryption(filename) {
         else if (line.find("Rotor 4: ") != std::string::npos) rotoren[4] = PermutationStringToArray(line.substr(9));
         else if (line.find("Reflector: ") != std::string::npos) reflector = PermutationStringToArray(line.substr(11));
         else if (line.find("crib: ") != std::string::npos) crib = line.substr(6);
-        else if (line.find(":") == std::string::npos)  this->cipherText = line;
+        else if (line.find(":") == std::string::npos) this->cipherText = line;
     }
 //    inverse rotors
     for (size_t rotor_index = 0; rotor_index < 5; rotor_index++) {
@@ -69,24 +69,21 @@ int Enigma::sendThrough(int char_code_in, const std::array<int, 3> &fast_middle_
     char_code = plugBoard.at(char_code);
 //    rotors/reflector
     char_code = sendThroughRotors(char_code, fast_middle_slow, stand_fast_middle_slow);
-
 //        Plugboard
     char_code = plugBoard.at(char_code);
     return char_code;
 }
 
 std::string Enigma::sendThrough(const std::string &input, const std::array<int, 3> &fast_middle_slow,
-                                                 const pos &start_stand_fast_mid_slow,
-                                                 const std::array<int, 26> &plugBoard) const {
+                                const pos &start_stand_fast_mid_slow,
+                                const std::array<int, 26> &plugBoard) const {
     std::string output{};
     int char_code;
     std::array<int, 3> stand_fast_middle_slow = start_stand_fast_mid_slow;
     for (char input_char: input) {
         char_code = (int) (unsigned char) input_char - ASCII_A;
         char_code = sendThrough(char_code, fast_middle_slow, stand_fast_middle_slow, plugBoard);
-
         output += alphabetIndex(char_code);
-
         tickRotors(stand_fast_middle_slow);
     }
     return output;
@@ -123,10 +120,6 @@ pos Enigma::RotorPosPlusK(const std::array<int, 3> &start_pos, int K) {
 
 std::string Enigma::Solve() {
     std::string input = this->cipherText;
-
-//    input = "DAEDAQOZSIQMMKBILGMPWHAIV";
-//    this->crib = "KEINEZUSAETZEZUMVORBERIQT";
-
     std::fstream ofs;
     auto start = std::chrono::high_resolution_clock::now();
     long long diff;
@@ -158,12 +151,13 @@ std::string Enigma::Solve() {
                 // now we have to find a suitable k (see course notes).
                 char charWithMostEdges = makeGraph(sub_string, edges);
                 valid_configurations = makeAllGammaGraphs(edges, vectorcombs, charWithMostEdges);
-                if(!valid_configurations.empty()){
+                if (!valid_configurations.empty()) {
                     for (auto &config: valid_configurations) {
                         config.setCribIndex((int) c);
                         ofs << config;
                     }
-                    return sendThrough(cipherText, valid_configurations[0].fms,valid_configurations[0].startPos,Enigma::PermutationStringToArray(valid_configurations[0].plugboard));
+                    return sendThrough(cipherText, valid_configurations[0].fms, valid_configurations[0].startPos,
+                                       Enigma::PermutationStringToArray(valid_configurations[0].plugboard));
                 }
 
             } else {
@@ -174,9 +168,7 @@ std::string Enigma::Solve() {
         ofs << "}" << std::endl;
         ofs.close();
     } else std::cout << "Unable to open file";
-
-    std::cout << "a";
-    return "std::string()";
+    return "";
 }
 
 void Enigma::GenArrangement(int n, int k, int idx, int used, int arran, std::vector<std::array<int, 3>> &comb) {
@@ -222,7 +214,6 @@ char Enigma::makeGraph(const std::string &input, std::map<size_t, std::pair<char
 }
 
 VertexMatrix Enigma::gammaGraph() {
-
     VertexMatrix vertexMatrix{};
     const Vertex *vertex1{}, *vertex2{};
     char c1, c2;
@@ -234,71 +225,31 @@ VertexMatrix Enigma::gammaGraph() {
             vertexMatrix.addEdge(c1, c2, c2, c1);
         }
     }
-
     return vertexMatrix;
 }
-
 
 
 std::vector<EnigmaConfiguration>
 Enigma::makeAllGammaGraphs(const _edges &graph, const std::vector<std::array<int, 3>> &vectorcombs,
                            char charWithMostEdges) const {
     pos start_pos{0, 0, 0};
-
     // per rotorstand, heel het circuit opbouwen.
     std::vector<EnigmaConfiguration> valid_configurations{};
     EnigmaConfiguration tempEnigmaConfiguration;
-    std::vector<std::thread> threads{};
-    int nr_threads = 10000;
     std::mutex valids_mutex{};
-
-
     auto start = std::chrono::high_resolution_clock::now();
     long long diff;
     unsigned int counter{};
-
     for (const std::array<int, 3> &fms: vectorcombs) { // all possible rotor positions
         do {
-            counter++;
-            if (counter % 1000 == 0) {
-//                time diff since start
-                diff = std::chrono::duration_cast<std::chrono::seconds>(
-                        std::chrono::high_resolution_clock::now() - start).count();
-//                Output counter, time and interations per second
-//                std::cout << "\t|Counter: " << std::to_string(counter) << "\t |Time (s): "
-//                          << diff
-//                          << "\t|Iterations/Second: " << counter / (diff + 1) << std::endl;
-            }
-//            threads.emplace_back(
-//                    &Enigma::makeGammaGraph, this, std::cref(graph),
-//                            std::cref(fms), start_pos, std::ref(valid_configurations),
-//                            std::ref(valids_mutex), charWithMostEdges);
             if (this->makeGammaGraph(graph,
-                                 fms,start_pos, valid_configurations,
-                                 valids_mutex, charWithMostEdges)){
-                for (auto &thread: threads) {
-                    thread.join();
-                }
-                threads.clear();
+                                     fms, start_pos, valid_configurations,
+                                     valids_mutex, charWithMostEdges)) {
                 return valid_configurations;
-            }
-//            this->makeGammaGraph( graph,
-//                                  fms,start_pos, valid_configurations,
-//                                 valids_mutex, charWithMostEdges);
-//
-
-            if (counter % nr_threads == 0) {
-                for (auto &thread: threads) {
-                    thread.join();
-                }
-                threads.clear();
             }
             tickRotors(start_pos);
         } while (start_pos.at(2) != 0 or start_pos.at(1) != 0 or
                  start_pos.at(0) != 0); // loop over all possible rotor configurations
-    }
-    for (auto &thread: threads) {
-        thread.join();
     }
     return valid_configurations;
 }
@@ -310,7 +261,7 @@ bool Enigma::makeGammaGraph(const _edges &graph, const std::array<int, 3> &fms, 
     pos rotor_plus_k_pos{};
     std::set<int> enabled_columns{}, enabled_rows{};
     VertexMatrix adjecencyMatrix = VertexMatrix();
-    char c1, c2,c3;
+    char c1, c2, c3;
     int nr_r, idx;
     std::set<char> filled_cols{}, filled_rows{};
     size_t rel_pos;
@@ -335,7 +286,7 @@ bool Enigma::makeGammaGraph(const _edges &graph, const std::array<int, 3> &fms, 
         adjecencyMatrix.getVertex(charWithMostEdges, 'A')->powerOffVertex();
         EnigmaConfiguration temp = EnigmaConfiguration(fms, start_pos);
         std::string plugBoard = std::string(26, ' ');
-        std::array<std::set<char>, 26> possibilitties {};
+        std::array<std::set<char>, 26> possibilitties{};
         bool done = false;
         for (c1 = ASCII_A; c1 <= ASCII_Z; c1++) {
             for (c2 = ASCII_A; c2 <= ASCII_Z; c2++) {
@@ -353,15 +304,14 @@ bool Enigma::makeGammaGraph(const _edges &graph, const std::array<int, 3> &fms, 
                     plugBoard[idx] = c3;
                     adjecencyMatrix.getVertex(c1, c2)->powerOffVertex();
                     break;
-                }else if (adjecencyMatrix.getNrPoweredOnCol(c1) == 1 && adjecencyMatrix.getNrPoweredOnRow(c1) == 1) {
-                    possibilitties[c1-ASCII_A].insert(c2);
+                } else if (adjecencyMatrix.getNrPoweredOnCol(c1) == 1 && adjecencyMatrix.getNrPoweredOnRow(c1) == 1) {
+                    possibilitties[c1 - ASCII_A].insert(c2);
                 }
                 adjecencyMatrix.getVertex(c1, c2)->powerOffVertex();
 
             }
         }
-        plugBoard = solvePlugBoard(possibilitties, plugBoard,fms,start_pos);
-        temp.setPlugBoard(plugBoard);
+        temp.setPlugBoard(solvePlugBoard(possibilitties, plugBoard, fms, start_pos));
         temp.setPlugboardPossibilitites(possibilitties);
         std::cout << "%%%%%%%%%%%%%SUCCESSFUL%%%%%%%%%%%%%" << std::endl;
         std::cout << temp;
@@ -373,59 +323,64 @@ bool Enigma::makeGammaGraph(const _edges &graph, const std::array<int, 3> &fms, 
     return false;
 }
 
-std::string Enigma::solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard,const std::array<int,3>& fms,const pos& startpos) const {
-    bool found {false};
-    std::map<char,std::vector<int>> occurences {};
-    for (int idx = 0; idx<26;idx++){
-        if (plugboard[idx] != ' '){
+std::string Enigma::solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard,
+                                   const std::array<int, 3> &fms, const pos &startpos) const {
+    bool found{false};
+    std::map<char, std::vector<int>> occurences{};
+    for (int idx = 0; idx < 26; idx++) {
+        if (plugboard[idx] != ' ') {
             possibilities[idx] = {};
             for (int i2 = 0; i2 < 26; i2++) {
-                if (possibilities[i2].find(plugboard[idx])!=possibilities[i2].end()){
+                if (possibilities[i2].find(plugboard[idx]) != possibilities[i2].end()) {
                     possibilities[i2].erase(possibilities[i2].find(plugboard[idx]));
                 }
             }
         }
     }
-    for (int idx = 0; idx<26;idx++) {
-        for (char c : possibilities[idx]){
-            if (occurences.find(c) == occurences.end()){
+    for (int idx = 0; idx < 26; idx++) {
+        for (char c: possibilities[idx]) {
+            if (occurences.find(c) == occurences.end()) {
                 occurences[c] = {};
             }
             occurences[c].emplace_back(idx);
         }
     }
-    for (int idx = 0; idx<26;idx++) {
-        if (occurences.find(idx+ASCII_A) != occurences.end() && occurences[idx+ASCII_A].size() == 1){
-            plugboard[occurences[idx+ASCII_A][0]] = idx+ASCII_A;
-            found= true;
+    for (int idx = 0; idx < 26; idx++) {
+        if (occurences.find(idx + ASCII_A) != occurences.end() && occurences[idx + ASCII_A].size() == 1) {
+            plugboard[occurences[idx + ASCII_A][0]] = idx + ASCII_A;
+            found = true;
         }
     }
-    if (found) return solvePlugBoard(possibilities, plugboard,fms,startpos);
+    if (found) return solvePlugBoard(possibilities, plugboard, fms, startpos);
     float fitness = 1.0f;
-    std::string bestplugboard {};
-    _solvePlugBoard(possibilities,plugboard,fms,startpos, fitness,bestplugboard);
+    std::string bestplugboard{};
+    _solvePlugBoard(possibilities, plugboard, fms, startpos, fitness, bestplugboard);
     return bestplugboard;
 }
-void Enigma::_solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard,const std::array<int,3>& fms,const pos& startpos, float& bestFitness, std::string& bestPlugBoard ) const {
+
+void Enigma::_solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard,
+                             const std::array<int, 3> &fms, const pos &startpos, float &bestFitness,
+                             std::string &bestPlugBoard) const {
     bool done;
     std::string resultingPlugboard, nextplugboard;
     std::array<std::set<char>, 26> cp;
-    done= true;
-    for (const char & c : plugboard) {
-        if(c==' ' ){
+    done = true;
+    for (const char &c: plugboard) {
+        if (c == ' ') {
             done = false;
             break;
         }
     }
-    if (done){
-        std::string plaintext = sendThrough(this->cipherText,fms,startpos,Enigma::PermutationStringToArray(plugboard));
-        std::vector<double> freq {};
+    if (done) {
+        std::string plaintext = sendThrough(this->cipherText, fms, startpos,
+                                            Enigma::PermutationStringToArray(plugboard));
+        std::vector<double> freq{};
         double fitness;
-        if(plaintext.find(this->crib)!=std::string::npos){
-            this->getAlphabetFrequencies(plaintext,freq);
-            fitness = this->compareFrequencies(freq,LETTER_FREQUENCY_EN);
-            if (fitness<bestFitness){
-                bestFitness=fitness;
+        if (plaintext.find(this->crib) != std::string::npos) {
+            this->getAlphabetFrequencies(plaintext, freq);
+            fitness = this->compareFrequencies(freq, LETTER_FREQUENCY_EN);
+            if (fitness < bestFitness) {
+                bestFitness = fitness;
                 bestPlugBoard = std::string(plugboard);
             }
             return;
@@ -433,18 +388,18 @@ void Enigma::_solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::
     }
     for (int i = 0; i < 26; i++) {
         if (possibilities[i].size() >= 1) {
-            for (char guess : possibilities[i]){
-                if(plugboard.find(guess) == std::string::npos){
+            for (char guess: possibilities[i]) {
+                if (plugboard.find(guess) == std::string::npos) {
                     cp = possibilities;
                     nextplugboard = plugboard;
                     cp[i] = {};
                     nextplugboard[i] = guess;
                     for (int i2 = 0; i2 < 26; i2++) {
-                        if (cp[i2].find(guess)!=cp[i2].end()){
+                        if (cp[i2].find(guess) != cp[i2].end()) {
                             cp[i2].erase(cp[i2].find(guess));
                         }
                     }
-                    _solvePlugBoard(cp,nextplugboard,fms,startpos,bestFitness,bestPlugBoard);
+                    _solvePlugBoard(cp, nextplugboard, fms, startpos, bestFitness, bestPlugBoard);
                 }
             }
             return;
@@ -490,7 +445,7 @@ void EnigmaConfiguration::setPlugBoard(std::string plugboard) {
 }
 
 void EnigmaConfiguration::setPlugboardPossibilitites(std::array<std::set<char>, 26> array1) {
-    this->possible_characters=array1;
+    this->possible_characters = array1;
 }
 
 EnigmaConfiguration::EnigmaConfiguration() = default;
