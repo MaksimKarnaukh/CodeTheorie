@@ -4,132 +4,79 @@
 
 #ifndef CODETHEORIE_ENIGMA_H
 #define CODETHEORIE_ENIGMA_H
+
 #include <thread>
 #include <mutex>
 
 #include "AlgorithmDecryption.h"
 #include <algorithm>
+
 typedef std::map<size_t, std::pair<char, char>> _edges;
 typedef std::array<int, 3> pos;
 
 class Vertex {
-    std::vector<Vertex*> neighbours {};
+    std::vector<Vertex *> neighbours{};
     int powered = 0;
 public:
     Vertex() = default;
-    void addNeighbour(Vertex* v){
-        neighbours.emplace_back(v);
-    }
-    void powerVertex(){
-        if (!isPowered()){
-            powered = 1;
-            for (const auto& neighbour : neighbours){
-                neighbour->powerVertex();
-            }
-        }
-    }
-    void powerOffVertex(){
-        if (isPowered()){
-            powered = 0;
-            for (const auto& neighbour : neighbours){
-                neighbour->powerOffVertex();
-            }
-        }
-    }
 
-    bool isPowered(){
-        return powered == 1;
-    }
+    void addNeighbour(Vertex *v);
 
-    int getPowered() const {
-        return powered;
-    }
+    void powerVertex();
+
+    void powerOffVertex();
+
+    bool isPowered() const;
+
+    int getPowered() const;
 };
 
 class VertexMatrix : public std::array<Vertex, 676> {
 public:
-    VertexMatrix() :  std::array<Vertex, 676>() {
-        for (int i1 = 0 ; i1 < 26; i1++) {
-            for (int i2 = 0; i2 < 26; i2++) {
-                this->at(26*i1 + i2) = Vertex();
-            }
-        }
-        char c1, c2;
-        //    A-Y
-        for (int i = 0; i < 25; i++) {
-            for (int j = i + 1; j < 26; j++) {
-                c1 = char(ASCII_A + i);
-                c2 = char(ASCII_A + j);
-                addEdge(c1,c2, c2, c1);
-            }
-        }
-    }
+    VertexMatrix();
 
 
-    const Vertex * getVertex(char c1,char c2) const{
-        return &(*this)[(c1-ASCII_A)*26 + (c2-ASCII_A)];
+    [[maybe_unused]] const Vertex *getVertex(char c1, char c2) const {
+        return &(*this)[(c1 - ASCII_A) * 26 + (c2 - ASCII_A)];
     };
-    Vertex * getVertex(char c1,char c2){
-        return &(*this)[(c1-ASCII_A)*26 + (c2-ASCII_A)];
-    };
-    void addEdge(char row_v1,char col_v1, char row_v2,char col_v2  ){
-        Vertex* v1 = getVertex(row_v1,col_v1);
-        Vertex* v2 = getVertex(row_v2,col_v2);
-        v1->addNeighbour(v2);
-        v2->addNeighbour(v1);
-    }
+
+    Vertex *getVertex(char c1, char c2);;
+
+    void addEdge(char row_v1, char col_v1, char row_v2, char col_v2);
 
 
-    int getNrPoweredOnRow(char row_chr) const {
-        int nr = 0;
-        int start = (row_chr-ASCII_A)*26, end = start+26;
-        for (size_t index = start; index<end; index++){
-            nr+= (*this)[index].getPowered();
-        }
-        return nr;
-    }
+    int getNrPoweredOnRow(char row_chr) const;
 
-    int getNrPoweredOnCol(char i) {
-        int nr = 0;
-        int start = (i-ASCII_A), end = this->size();
-        for (size_t index = start; index<end; index+=26){
-            nr+= (*this)[index].getPowered();
-        }
-        return nr;
-    }
+    int getNrPoweredOnCol(char i);
 
-    char getTurnedOffInRow(char i) {
-        int start = (i-ASCII_A)*26, end = start+26;
-        for (size_t index = start; index<end; index++){
-            if (!(*this)[index].isPowered()) return (char) (index%26+ASCII_A);
-        }
-    }
-    char getTurnedOffInCol(char i) {
-        int start = (i-ASCII_A), end = this->size();
-        for (size_t index = start; index<end; index+=26){
-            if (!(*this)[index].isPowered()) return (char) (index%26+ASCII_A);
-        }
-    }
+    char getTurnedOffInRow(char i);
+
+    char getTurnedOffInCol(char i);
 };
 
 
-typedef std::map<const Vertex*, std::vector<const Vertex*>> gammaEdges;
-static const VertexMatrix BaseVertexMatrix {};
+typedef std::map<const Vertex *, std::vector<const Vertex *>> gammaEdges;
+static const VertexMatrix BaseVertexMatrix{};
 
 class EnigmaConfiguration {
+public:
     int cribIndex = -1;
     pos startPos{};
     std::string plugboard{"UNKNOWN"};
     std::array<int, 3> fms{};
-public:
+    std::array<std::set<char>, 26> possible_characters{};
     void setCribIndex(int cribIndex);
+
     friend std::ostream &operator<<(std::ostream &os, const EnigmaConfiguration &enigmaConfiguration);
+
     EnigmaConfiguration();
 
 public:
     EnigmaConfiguration(std::array<int, 3> fms, const pos &startpos);
 
     void setPlugBoard(std::string plugboard);
+
+    void setPlugboardPossibilitites(std::array<std::set<char>, 26> array1);
 };
 
 class Enigma : public AlgorithmDecryption {
@@ -146,7 +93,7 @@ public:
 
     static std::array<int, 26> PermutationStringToArray(const std::string &input);
 
-    [[maybe_unused]] std::string
+    std::string
     sendThrough(const std::string &input, const std::array<int, 3> &fast_middle_slow,
                 const std::array<int, 3> &start_stand,
                 const std::array<int, 26> &plugBoard) const;
@@ -155,7 +102,7 @@ public:
 
     static void tickRotors(std::array<int, 3> &stand_fast_middle_slow);
 
-    static char alphabetIndex(int index) ;
+    static char alphabetIndex(int index);
 
     /**
      *
@@ -214,6 +161,14 @@ public:
 
     int sendThroughRotors(int char_code_in, const std::array<int, 3> &fast_middle_slow,
                           const pos &stand_fast_middle_slow) const;
+
+    std::string
+    solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard, const std::array<int, 3> &fms,
+                   const pos &startpos) const;
+
+    void
+    _solvePlugBoard(std::array<std::set<char>, 26> possibilities, std::string plugboard, const std::array<int, 3> &fms,
+                    const pos &startpos, float& bestFitness, std::string &bestPlugBoard) const;
 };
 
 

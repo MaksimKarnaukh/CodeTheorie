@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<AlgorithmDecryption> algorithmDecryption;
 
     if (encr_algo.empty()) { // all encryption algorithms
+        std::cout << "Please enter an encryption: VP, PF, AD, EN" << std::endl;
+        return 1;
 //        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
     }
     else if ( encr_algo == "VP"){ // specific encryption algorithm
@@ -47,6 +49,11 @@ int main(int argc, char *argv[]) {
     else {
         std::cout << "Please run with one of the following arguments:\nVP\tPF\tAD\tEN\n";
         return 0;
+    }
+    else { // all encryption algorithms
+        std::cout << "Please enter a supported encryption: VP, PF, AD, EN" << std::endl;
+        return 1;
+//        algorithmDecryption = std::make_shared<ViginerePlus>(ViginerePlus("../data/01-OPGAVE-vigenerePlus.txt"));
     }
     std::string out = algorithmDecryption->Solve();
     std::cout << out << std::endl;
