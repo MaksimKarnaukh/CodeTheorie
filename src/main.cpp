@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
     if(argc>=2) {
         encr_algo = argv[1];
     }
+    // temporary fix when no arguments are given
+    else {
+        std::cout << "Please run with one of the following arguments:\nVP\tPF\tAD\tEN\n";
+        return 0;
+    }
+
     auto start = high_resolution_clock::now();
     std::shared_ptr<AlgorithmDecryption> algorithmDecryption;
 
@@ -37,6 +43,10 @@ int main(int argc, char *argv[]) {
     else if (encr_algo == "EN") {
         algorithmDecryption = std::make_shared<Enigma>(Enigma("../data/04-OPGAVE-enigma.txt"));
 //        algorithmDecryption = std::make_shared<Enigma>(Enigma("../data/EngimaTest.txt"));
+    }
+    else {
+        std::cout << "Please run with one of the following arguments:\nVP\tPF\tAD\tEN\n";
+        return 0;
     }
     std::string out = algorithmDecryption->Solve();
     std::cout << out << std::endl;

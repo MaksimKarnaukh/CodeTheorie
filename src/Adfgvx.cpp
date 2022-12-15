@@ -18,7 +18,7 @@ const std::map<std::string, char> MORSE{{".-", 'a'}, {"-..", 'd'}, {"..-.", 'f'}
                                         {"--.", 'g'}, {"...-", 'v'}, {"-..-", 'x'}};
 
 
-// order of frequency of digraphs, source: https://www.dcode.fr/bigrams
+// order of frequency of digraphs, source: https://www.dcode.fr/bigrams, total sum = 67.5
 const std::map<std::string, double> DIGRAPH_EN {
     {"th", 2.9}, {"he", 2.48}, {"in", 1.87}, {"er", 1.73},
     {"an", 1.65}, {"re", 1.38}, {"es", 1.35}, {"st", 1.19},
@@ -47,7 +47,7 @@ const std::map<std::string, double> DIGRAPH_EN {
     {"ge", 0.32}, {"ep", 0.32}, {"mo", 0.32}, {"we", 0.31}
 };
 
-//// trigram frequency English, source:
+// trigram frequency English (unused)
 //const std::map<std::string, double> TRIGRAM_EN {
 //    {"the", 1.81}, {"ere", 0.31}, {"hes", 0.24},
 //    {"and", 0.73}, {"tio", 0.31}, {"ver", 0.24},
@@ -90,9 +90,6 @@ std::string Adfgvx::Solve() {
     auto text = decodeMorse(getCipherText());
     std::cout << text << std::endl;
 
-    // shows potential
-    std::vector<std::vector<std::string>> potential;
-
     // Try with this key length
     int keyLength = 1;  // only 6 shows potential
     while (true) {
@@ -114,7 +111,7 @@ std::string Adfgvx::Solve() {
         // exit = false to stop
         bool exit = true;
 
-        // try permutations
+        // do while (std::next_permutation(columnIndices.begin(), columnIndices.end()) && exit)
         do {
             // make columns
             columns.clear();
@@ -152,13 +149,6 @@ std::string Adfgvx::Solve() {
                       [](const auto &x1, const auto &x2){
                 return x1.first > x2.first;
             });
-
-            // normalize
-            double divider = 0;
-            for (const auto& letterFrequency : letterFrequencies) {
-                divider += (letterFrequency.first * letterFrequency.first);
-            }
-            divider = std::sqrt(divider);
 
             // compare to language letter frequency
             std::string language;
@@ -237,8 +227,13 @@ std::string Adfgvx::Solve() {
         } while (std::next_permutation(columnIndices.begin(), columnIndices.end()) && exit);
 
         keyLength++;
-        if (keyLength > 6)
+        if (!exit)
             break;
+        if (keyLength > 10) {
+            std::cout << "No permutations left." << std::endl;
+            break;
+        }
+
     }
 
     //
@@ -393,6 +388,7 @@ double Adfgvx::analyseDigraphFitness(const std::string &text) {
     std::map<std::string, int> frequencies;
     int amount = 0;
 
+    // frequency of digraphs
     for (size_t i = 0; i < text.size(); i++) {
         if (i + 1 == text.size())
             break;
@@ -400,11 +396,13 @@ double Adfgvx::analyseDigraphFitness(const std::string &text) {
         amount += 1;
     }
 
+    // calculate fitness
     for (const auto& frequency : frequencies) {
         auto stringLocation = DIGRAPH_EN.find(frequency.first);
         if (stringLocation == DIGRAPH_EN.end())
             continue;
 
+        // 1 - (difference in frequency)
         fitness += 1 - std::abs((*stringLocation).second - (double(frequency.second) / amount * 100));
     }
     return fitness;
