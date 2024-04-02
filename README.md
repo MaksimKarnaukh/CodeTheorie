@@ -1,7 +1,5 @@
 # CodeTheorie
 
-Push naar Master
-
 Base class: AlgorithmDecryption 
 
 Subclasses that inherit from AlgorithmDecryption: \
@@ -86,4 +84,4 @@ To run a specific algorithm, use one of the following:
     ```
   
 ### Notes
-Some algorithms will require user input. Entering wrong inputs may break the program.
+Some algorithms will require user input.
